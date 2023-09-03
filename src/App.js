@@ -1,20 +1,22 @@
 import React from "react";
-import logo from "./logo.png";
 import "./App.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-class App extends React.Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-        </header>
-      </div>
-    );
-  }
-}
+//routes
+import Calculator from "./components/Calculator.js";
+
+const App = () => {
+  return (
+    <BrowserRouter>
+        <div className="App">
+          <div>
+            <Routes>
+              <Route exact path="/" element={<Calculator />} />
+            </Routes>
+          </div>
+        </div>
+    </BrowserRouter>
+  );
+};
 
 export default App;
