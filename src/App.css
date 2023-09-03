@@ -16,9 +16,21 @@
 .main{
   width: 80vw;
   color: black;
-  min-height: 100vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+}
+
+/* Footer.css */
+.footer-container {
+  /* background: linear-gradient(to top, grey, transparent); */
+  text-align: center;
+  margin: 0 auto;
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
