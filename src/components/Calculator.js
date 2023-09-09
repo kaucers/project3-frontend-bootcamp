@@ -14,6 +14,7 @@ import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import AirlineSeatLegroomReducedIcon from '@mui/icons-material/AirlineSeatLegroomReduced';
 import TextField from '@mui/material/TextField';
 import { Slider, Typography, Stack } from '@mui/material';
+import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import axios from 'axios';
 import BACKEND_URL from './constant';
@@ -43,25 +44,32 @@ export default function Calculator() {
   const [pointsPushUp, setpointsPushUp] = useState(0);
   const [testDate, setTestDate] = useState(null);
   const [award, setAward] = useState("");
+  // Display Todays' Date
   const [todayDate, setTodayDate] = useState("");
+  //Get User data
   const [userId, setUserId] = useState(null);
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
+  //Detect if form is changed
+  const [formChanged, setFormChanged] = useState(false);
 
   const handleSliderPushUpChange = (event, newValue) => {
     setSliderValuePU(newValue);
+    setFormChanged(true);
   };
 
   const handleSliderSitUpChange = (event, newValue) => {
     setsSliderSitUp(newValue);
+    setFormChanged(true);
   };
 
   const handleSliderRunChange = (event, newValue) => {
     setsSliderRun(newValue);
+    setFormChanged(true);
   };
 
   const handleInputChange = (event) => {
     const inputValue = event.target.value;
-
+    setFormChanged(true);
     // Check if the input value is a valid number between 22 and 60
     if (/^\d+$/.test(inputValue) && inputValue >= 15 && inputValue <= 60) {
       setError(false);
@@ -69,6 +77,25 @@ export default function Calculator() {
     } else {
       setError(true);
       setCurrentAge(inputValue);
+    }
+    
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(`${BACKEND_URL}/updatetarget`,
+      { 
+        push_up: sliderValuePU,
+        sit_up:sliderSitUp,
+        run: sliderRun,
+        end_date: testDate,
+        user_id: userId});
+      console.log('Form submitted successfully:', res.data);
+      setFormChanged(false);
+    } catch (error) {
+      console.error('Error submitting form:', error);
     }
   };
 
@@ -147,9 +174,22 @@ export default function Calculator() {
     else{
       return null;
     }
-    
-
   }
+
+  function calculateAge(birthdate) {
+    // Get the current date
+    const currentDate = new Date();
+    // Calculate the difference in milliseconds between the current date and birthdate
+    const ageDifference = currentDate - new Date(birthdate);
+    console.log(ageDifference);
+    // Convert the age difference to a Date object to extract years
+    const ageDate = new Date(ageDifference);
+    // Get the year (subtract 1970 because ageDate is relative to 1970)
+    const age = ageDate.getUTCFullYear() - 1970;
+    return age;
+  }
+
+  
 
   useEffect(() => { //Get today's date
     // Create a new Date object for today's date
@@ -214,6 +254,8 @@ export default function Calculator() {
         setUserId(res.data.id) //sets the UserId
         // Access end_date from the first target performance record
         // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
+        console.log(res.data.birthday)
+        setCurrentAge(calculateAge(res.data.birthday))
         console.log("Fetched User Data")
        
       } else {
@@ -234,10 +276,16 @@ export default function Calculator() {
 
   return (
     <div className="main">
+    <form onSubmit={handleSubmit}>
     <FormControl >
+
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
-      
+      <Grid item xs={12}>
+      <Button type="submit" variant="contained" color="primary" disabled={!formChanged}>
+        Save
+      </Button>
+      </Grid>
       <Grid item xs={2}>
           <Item>
           <Typography variant="body1">Test-Date</Typography> 
@@ -245,7 +293,7 @@ export default function Calculator() {
           <DatePicker 
           label="Date"  
           value={dayjs(testDate)}
-          onChange={(newValue) => setTestDate(newValue)}
+          onChange={(newValue) => {setTestDate(newValue); setFormChanged(true)}}
           />
           </LocalizationProvider>
           </Item>
@@ -318,11 +366,12 @@ export default function Calculator() {
 
         <Grid item xs={4}>
           <Item>
-        <Typography gutterBottom>Enter Age:</Typography>
+        <Typography gutterBottom>Age:</Typography>
         <TextField
           label="Age"
           variant="outlined"
           value={currentAge}
+          disabled={true}
           onChange={handleInputChange}
           error={error}
           helperText={error ? 'Please enter a 2 digit number <60' : ''}
@@ -380,6 +429,7 @@ export default function Calculator() {
       </Grid>
     </Box>
     </FormControl>
+    </form>
     </div>
   );
 }

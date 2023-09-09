@@ -134,7 +134,7 @@ export default function Entry() {
 
     const fetchDataAndSetPoints = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/entry`, {
+        const response = await axios.get(`${BACKEND_URL}/`, {
           params: {
             age: categorizeAge(currentAge),
             pushup: sliderValuePU,

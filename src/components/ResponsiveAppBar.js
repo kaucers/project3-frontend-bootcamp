@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -13,13 +14,19 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import SignOutButton from "./SignOutButton";
+import BACKEND_URL from './constant';
+import axios from 'axios';
 
 const pages = ["About", "Contact Us"];
 
 function ResponsiveAppBar() {
  
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg");
+  const [userFirstName,setUserFirstName] = useState(null);
+  const [userLastName,setUserLastName] = useState(null);
+  const [currentFormattedTime, setCurrentFormattedTime] = useState('');
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -35,6 +42,53 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  
+  useEffect(() => {
+    // Function to fetch exercise data based on user's email
+  const fetchTargetData = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
+
+      if (res.status === 200) {
+        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        setUserFirstName(res.data.first_name) //sets the user first name
+        setUserLastName(res.data.last_name) //sets the user last name
+        console.log("Fetched User Data")
+       
+      } else {
+        console.error('Failed to fetch exercise data.');
+      }
+    } catch (error) {
+      console.error('Error fetching exercise data:', error);
+    }
+  };
+
+    if (userEmail) {
+      // Fetch exercise data when userEmail state changes
+      fetchTargetData();
+    }
+  }, [userEmail]);
+
+  useEffect(() => {
+    const updateCurrentTime = () => {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      
+      setCurrentFormattedTime(`${hours}:${minutes}:${seconds}`);
+    };
+
+    // Update the current time initially and every second
+    updateCurrentTime();
+    const intervalId = setInterval(updateCurrentTime, 1000);
+
+    // Clean up the interval when the component unmounts
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <AppBar position="static">
@@ -130,6 +184,18 @@ function ResponsiveAppBar() {
             ))}
           </Box>
 
+          <Box sx={{ flexGrow: 0 }}>
+        {userEmail && (
+          <>
+            <Typography variant="h6" textAlign="right">
+              {`Time: ${currentFormattedTime}`}
+            </Typography>
+            <Typography variant="body1" textAlign="right">
+              {`Welcome back, ${userFirstName} ${userLastName}`}
+            </Typography>
+          </>
+        )}
+      </Box>
           
         </Toolbar>
       </Container>

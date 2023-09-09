@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
@@ -9,6 +9,8 @@ import Calculator from "./components/Calculator.js";
 import Entry from "./components/Entry.js";
 
 const App = () => {
+
+
   return (
     <BrowserRouter>
         <div className="App">
