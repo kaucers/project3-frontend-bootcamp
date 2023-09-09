@@ -6,6 +6,7 @@ import ResponsiveAppBar from "./components/ResponsiveAppBar";
 import BottomNavi from "./components/BottomNavi";
 //routes
 import Calculator from "./components/Calculator.js";
+import Entry from "./components/Entry.js";
 
 const App = () => {
   return (
@@ -16,6 +17,7 @@ const App = () => {
           <div>
             <Routes>
               <Route exact path="/" element={<Calculator />} />
+              <Route exact path="/entry" element={<Entry />} />
             </Routes>
           </div>
           

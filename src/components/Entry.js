@@ -17,10 +17,6 @@ import { Slider, Typography, Stack } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import axios from 'axios';
 import BACKEND_URL from './constant';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -31,7 +27,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export default function Calculator() {
+export default function Entry() {
   const [sliderValuePU, setSliderValuePU] = useState(50);
   const [sliderSitUp, setsSliderSitUp] = useState(50);
   const [sliderRun, setsSliderRun] = useState(650);
@@ -41,11 +37,7 @@ export default function Calculator() {
   const [pointsSitUp, setpointsSitUp] = useState(0);
   const [pointsRun, setpointsRun] = useState(0);
   const [pointsPushUp, setpointsPushUp] = useState(0);
-  const [testDate, setTestDate] = useState(null);
   const [award, setAward] = useState("");
-  const [todayDate, setTodayDate] = useState("");
-  const [userId, setUserId] = useState(null);
-  const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
 
   const handleSliderPushUpChange = (event, newValue) => {
     setSliderValuePU(newValue);
@@ -134,30 +126,7 @@ export default function Calculator() {
     }
   }
   
-  function calculateDaysRemaining(currentDate, testDate) {
-    if (testDate){ //if there is testDate
-    // Calculate the time difference in milliseconds
-    const timeDifference = testDate - currentDate;
-    // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
-    const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  
-    return daysRemaining;
 
-    }
-    else{
-      return null;
-    }
-    
-
-  }
-
-  useEffect(() => { //Get today's date
-    // Create a new Date object for today's date
-    const currentDate = new Date();
-    // Set the formatted date in the state
-    setTodayDate(currentDate);
-
-  }, []);
   
   // Define the useEffect hook
   useEffect(() => {
@@ -165,7 +134,7 @@ export default function Calculator() {
 
     const fetchDataAndSetPoints = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/`, {
+        const response = await axios.get(`${BACKEND_URL}/entry`, {
           params: {
             age: categorizeAge(currentAge),
             pushup: sliderValuePU,
@@ -192,128 +161,70 @@ export default function Calculator() {
     // Call the function when dependencies change
     fetchDataAndSetPoints();
   }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
-
   
-  //  // Define the useEffect hook
-  //  useEffect(() => {
-  //   // Function to make the axios request and update the target
-
-
-  useEffect(() => {
-    // Function to fetch exercise data based on user's email
-  const fetchTargetData = async () => {
-    try {
-      const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
-
-      if (res.status === 200) {
-        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-        setSliderValuePU(res.data.tbl_target_pefs[0].sit_up)
-        setsSliderSitUp(res.data.tbl_target_pefs[0].push_up)
-        setsSliderRun(res.data.tbl_target_pefs[0].run)
-        setTestDate(new Date(res.data.tbl_target_pefs[0].end_date))
-        setUserId(res.data.id) //sets the UserId
-        // Access end_date from the first target performance record
-        // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
-        console.log("Fetched User Data")
-       
-      } else {
-        console.error('Failed to fetch exercise data.');
-      }
-    } catch (error) {
-      console.error('Error fetching exercise data:', error);
-    }
-  };
-
-    if (userEmail) {
-      // Fetch exercise data when userEmail state changes
-      fetchTargetData();
-    }
-  }, [userEmail]);
-
-
 
   return (
     <div className="main">
     <FormControl >
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
-      
-      <Grid item xs={2}>
-          <Item>
-          <Typography variant="body1">Test-Date</Typography> 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker 
-          label="Date"  
-          value={dayjs(testDate)}
-          onChange={(newValue) => setTestDate(newValue)}
-          />
-          </LocalizationProvider>
-          </Item>
-      </Grid>
 
-      <Grid item xs={8}>
-          <Item>
+      <Grid item xs={12}>
+        <Item>
           <Typography variant="body1">Award</Typography> 
           <Divider variant="middle" />
           <Typography variant="h2">{calculateAwardType()}</Typography>
           </Item>
-      </Grid>
-
-      <Grid item xs={2} >
-          <Item >
-          <Typography variant="body1">Days Remaining</Typography> 
-          <Typography variant="h2">{calculateDaysRemaining(todayDate,testDate)}</Typography>
+        </Grid>
+        
+        <Grid item xs={4}>
+          <Item>
+          <Typography variant="body1">Push-Up Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsPushUp}</Typography>
           </Item>
-      </Grid>
+        </Grid>
         
-      <Grid item xs={4}>
+        <Grid item xs={4}>
         <Item>
-        <Typography variant="body1">Push-Up Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsPushUp}</Typography>
-        </Item>
-      </Grid>
+          <Typography variant="body1">Sit-Up Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsSitUp}</Typography>
+          </Item>
+        </Grid>
         
-      <Grid item xs={4}>
-      <Item>
-        <Typography variant="body1">Sit-Up Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsSitUp}</Typography>
-        </Item>
-      </Grid>
+        <Grid item xs={4}>
+          <Item>
+          <Typography variant="body1">Running Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsRun}</Typography>
+          </Item>
+        </Grid>
         
-      <Grid item xs={4}>
-        <Item>
-        <Typography variant="body1">Running Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsRun}</Typography>
-        </Item>
-      </Grid>
-        
-      <Grid item xs={4}>
-        <Item>
-        <Stack spacing={2} alignItems="center">
-          <FormLabel id="demo-radio-buttons-group-label">Vocation</FormLabel>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="nsf"
-            name="radio-buttons-group"
-          >
-            <FormControlLabel
-              value="special"
-              control={<Radio />}
-              label="Commando/Diver/Guards"
-              disabled={true}
-            />
-            <FormControlLabel
-              value="nsf"
-              control={<Radio />}
-              label="NSF/NSMen"
-            />
-          </RadioGroup>
-        </Stack>
-        </Item>
-      </Grid>
+        <Grid item xs={4}>
+          <Item>
+          <Stack spacing={2} alignItems="center">
+            <FormLabel id="demo-radio-buttons-group-label">Vocation</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="nsf"
+              name="radio-buttons-group"
+            >
+              <FormControlLabel
+                value="special"
+                control={<Radio />}
+                label="Commando/Diver/Guards"
+                disabled={true}
+              />
+              <FormControlLabel
+                value="nsf"
+                control={<Radio />}
+                label="NSF/NSMen"
+              />
+            </RadioGroup>
+          </Stack>
+          </Item>
+        </Grid>
 
 
         <Grid item xs={4}>
@@ -370,7 +281,8 @@ export default function Calculator() {
           <Item>2.4km Slider
           <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
           <AccessAlarmIcon style={{ width: '20px', margin: '0 3vw' }}/>
-        <Slider defaultValue={600} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderRunChange} min={500} max={1100}/>
+        <Slider defaultValue={600} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderRunChange} min={500} max={1100}
+  max={1090}/>
         <Typography style={{ width: '20px', margin: '0 3vw' }}>Time:{`\n${formatTime(sliderRun)}`}</Typography>
           </Stack>
           </Item>        

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import BottomNavigation from '@mui/material/BottomNavigation';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
@@ -19,9 +20,27 @@ export default function BottomNavi() {
           setValue(newValue);
         }}
       >
-        <BottomNavigationAction label="Goal" icon={<SportsScoreIcon />} />
-        <BottomNavigationAction label="Daily Entry" icon={<DescriptionIcon />} />
-        <BottomNavigationAction label="Performance" icon={<AutoGraphIcon />} />
+
+        <BottomNavigationAction 
+        component={Link}
+        to="/" 
+        label="Goal" 
+        icon={<SportsScoreIcon />} 
+        />
+
+        <BottomNavigationAction 
+        component={Link}
+        to="/entry" 
+        label="Daily Entry" 
+        icon={<DescriptionIcon />} 
+        />
+
+        <BottomNavigationAction 
+        component={Link}
+        to="/graph" 
+        label="Performance" 
+        icon={<AutoGraphIcon />} 
+        />
       </BottomNavigation>
     </Box>
     </footer>
