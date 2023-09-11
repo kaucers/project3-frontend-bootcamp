@@ -38,3 +38,19 @@
 .light-pastel-yellow {
   background-color: lightyellow;
 }
+
+
+/* styles.css */
+
+/* Default width for all screens */
+.data-entry {
+  width: 25%;
+}
+
+/* Media query for small screens and above (sm and up) */
+@media (min-width: 600px) {
+  .data-entry {
+    width: 50%;
+  }
+}
+

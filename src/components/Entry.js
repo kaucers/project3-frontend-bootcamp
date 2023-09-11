@@ -18,8 +18,20 @@ import Divider from '@mui/material/Divider';
 import axios from 'axios';
 import BACKEND_URL from './constant';
 
+// Timer
+import Timer from './Timer';
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  height: "80%",
+  color: theme.palette.text.secondary,
+}));
+
+const ItemTarget = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#FFD700', // Yellow background color
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
@@ -165,98 +177,38 @@ export default function Entry() {
 
   return (
     <div className="main">
+
     <FormControl >
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2}>
+      <Grid  container spacing={1} direction="column">
 
-      <Grid item xs={12}>
+      <Grid
+        className="data-container"
+        container
+        spacing={1}
+        direction="row"
+        sx={{ width: '50vw' }} // Set the total width of the container
+        >
+      <Grid  item xs={12}>
         <Item>
           <Typography variant="body1">Award</Typography> 
           <Divider variant="middle" />
-          <Typography variant="h2">{calculateAwardType()}</Typography>
+          <Typography variant="h3">{calculateAwardType()}</Typography>
           </Item>
         </Grid>
+      </Grid>
         
-        <Grid item xs={4}>
-          <Item>
-          <Typography variant="body1">Push-Up Points</Typography> 
-          <Divider variant="middle" />
-          <Typography variant="h3">{pointsPushUp}</Typography>
-          </Item>
-        </Grid>
-        
-        <Grid item xs={4}>
-        <Item>
-          <Typography variant="body1">Sit-Up Points</Typography> 
-          <Divider variant="middle" />
-          <Typography variant="h3">{pointsSitUp}</Typography>
-          </Item>
-        </Grid>
-        
-        <Grid item xs={4}>
-          <Item>
-          <Typography variant="body1">Running Points</Typography> 
-          <Divider variant="middle" />
-          <Typography variant="h3">{pointsRun}</Typography>
-          </Item>
-        </Grid>
-        
-        <Grid item xs={4}>
-          <Item>
-          <Stack spacing={2} alignItems="center">
-            <FormLabel id="demo-radio-buttons-group-label">Vocation</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label"
-              defaultValue="nsf"
-              name="radio-buttons-group"
-            >
-              <FormControlLabel
-                value="special"
-                control={<Radio />}
-                label="Commando/Diver/Guards"
-                disabled={true}
-              />
-              <FormControlLabel
-                value="nsf"
-                control={<Radio />}
-                label="NSF/NSMen"
-              />
-            </RadioGroup>
-          </Stack>
-          </Item>
-        </Grid>
 
+      {/* PUSH UP ROW */}
+      <Grid
+      className="data-container"
+      container
+      spacing={1}
+      direction="row"
+      sx={{ width: '50vw' }} // Set the total width of the container
+    >
 
-        <Grid item xs={4}>
-          <Item>
-        <Typography gutterBottom>Enter Age:</Typography>
-        <TextField
-          label="Age"
-          variant="outlined"
-          value={currentAge}
-          onChange={handleInputChange}
-          error={error}
-          helperText={error ? 'Please enter a 2 digit number <60' : ''}
-          inputProps={{ maxLength: 2 }}
-        />
-        </Item>          
-        </Grid>
-        <Grid item xs={4} >
-        <Item >
-          <Stack justifyContent="center" spacing={2} direction="column" sx={{ mb: 1 }} alignItems="center">
-          <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
-      <RadioGroup
-        aria-labelledby="demo-radio-buttons-group-label"
-        defaultValue="male"
-        name="radio-buttons-group">
-        <FormControlLabel value="female" control={<Radio />} label="Female" disabled={true}/>
-        <FormControlLabel value="male" control={<Radio />} label="Male" />
-      </RadioGroup>
-      </Stack>
-      </Item>
-        </Grid>
-
-        <Grid item xs={12}>
+        <Grid item xs={8}>
           <Item>Push-Ups Slider 
           <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
           <AccessibilityNewIcon style={{ margin: '0 3vw' }}/>
@@ -266,8 +218,36 @@ export default function Entry() {
           </Item>        
         </Grid>
 
+        <Grid  item xs={2}>
+          <Item>
+          <Typography variant="body1">Push-Up Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsPushUp}</Typography>
+          </Item>
+        </Grid>
+
+        <Grid item xs={2}>
+          <ItemTarget>
+          <Typography variant="body1">Target</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsSitUp}</Typography>
+          </ItemTarget>
+        </Grid>  
         
-        <Grid item xs={12}>
+      </Grid>
+        
+    {/* SIT UP ROW */}
+
+      <Grid
+        className="data-container"
+        container
+        spacing={1}
+        direction="row"
+        sx={{ width: '50vw' }} // Set the total width of the container
+
+      >
+
+        <Grid  item xs={8}>
           <Item>Sit-Ups Slider 
           <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
           <AirlineSeatLegroomReducedIcon style={{ margin: '0 3vw' }}/>
@@ -277,16 +257,60 @@ export default function Entry() {
           </Item>        
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid item xs={2}>
+        <Item>
+          <Typography variant="body1">Sit-Up Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsSitUp}</Typography>
+          </Item>
+        </Grid>
+
+        <Grid item xs={2}>
+          <ItemTarget>
+          <Typography variant="body1">Target</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsSitUp}</Typography>
+          </ItemTarget>
+        </Grid>    
+      </Grid>
+
+
+      <Grid
+        className="data-container"
+        container
+        spacing={1}
+        direction="row"
+        sx={{ width: '50vw' }} // Set the total width of the container
+      >
+
+      {/* RUNNING ROW */}
+        <Grid  item xs={8}>
           <Item>2.4km Slider
           <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
           <AccessAlarmIcon style={{ width: '20px', margin: '0 3vw' }}/>
-        <Slider defaultValue={600} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderRunChange} min={500} max={1100}
-  max={1090}/>
+        <Slider defaultValue={600} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderRunChange} min={500} max={1100}/>
         <Typography style={{ width: '20px', margin: '0 3vw' }}>Time:{`\n${formatTime(sliderRun)}`}</Typography>
           </Stack>
           </Item>        
         </Grid>
+
+
+        <Grid item xs={2}>
+          <Item>
+          <Typography variant="body1">Running Points</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsRun}</Typography>
+          </Item>
+        </Grid>    
+
+        <Grid item xs={2}>
+          <ItemTarget>
+          <Typography variant="body1">Target</Typography> 
+          <Divider variant="middle" />
+          <Typography variant="h3">{pointsRun}</Typography>
+          </ItemTarget>
+        </Grid>    
+      </Grid>
 
 
       </Grid>
