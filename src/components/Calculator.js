@@ -218,8 +218,8 @@ export default function Calculator() {
         // Check if the response data is an array with at least 3 elements
         if (Array.isArray(response.data) && response.data.length >= 3) {
           // Update the points locally
-          setpointsPushUp(response.data[0]);
-          setpointsSitUp(response.data[1]);
+          setpointsSitUp(response.data[0]);
+          setpointsPushUp(response.data[1]);
           setpointsRun(response.data[2]);
         } else {
           console.error('Invalid response data format');
@@ -247,8 +247,8 @@ export default function Calculator() {
 
       if (res.status === 200) {
         console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-        setSliderValuePU(res.data.tbl_target_pefs[0].sit_up)
-        setsSliderSitUp(res.data.tbl_target_pefs[0].push_up)
+        setSliderValuePU(res.data.tbl_target_pefs[0].push_up)
+        setsSliderSitUp(res.data.tbl_target_pefs[0].sit_up)
         setsSliderRun(res.data.tbl_target_pefs[0].run)
         setTestDate(new Date(res.data.tbl_target_pefs[0].end_date))
         setUserId(res.data.id) //sets the UserId

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Grid from '@mui/material/Grid';
+import {Typography} from '@mui/material';
 import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import StopIcon from '@mui/icons-material/Stop';
 
-function StopwatchTimer() {
-  const [time, setTime] = useState(0); // Time in seconds
+function Timer() {
+  const [time, setTime] = useState(0); // Time in milliseconds
   const [isRunning, setIsRunning] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
 
@@ -14,8 +15,8 @@ function StopwatchTimer() {
   const startTimer = () => {
     if (!isRunning) {
       const id = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
-      }, 1000);
+        setTime((prevTime) => prevTime + 10); // Increment by 10 milliseconds
+      }, 10);
       setIsRunning(true);
       setIntervalId(id);
     }
@@ -40,47 +41,70 @@ function StopwatchTimer() {
     };
   }, [intervalId]);
 
+  const formatTime = (milliseconds) => {
+    const minutes = Math.floor(milliseconds / 60000);
+    const seconds = ((milliseconds % 60000) / 1000).toFixed(1);
+    return `${minutes} mins ${seconds} secs`;
+  };
+
   return (
-    <Grid container spacing={2} alignItems="center">
-      <Grid item>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={startTimer}
-          startIcon={<PlayArrowIcon />}
-          disabled={isRunning}
+   
+
+    <Grid
+        container
+        spacing={0}
+        direction="column"
+        sx={{ width: '50vw' }} // Set the total width of the container
         >
-          Start
-        </Button>
-      </Grid>
-      <Grid item>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={pauseTimer}
-          startIcon={<PauseIcon />}
-          disabled={!isRunning}
+        <Grid  item xs={12}>
+          <Typography variant="h4"><strong>Timer:</strong></Typography>
+          <Typography variant="h4">{`${formatTime(time)}`}</Typography>
+        </Grid>
+
+        <Grid
+        container
+        spacing={0}
+        direction="row"
+        justifyContent="center" // Center horizontally
+        alignItems="center" // Center vertically
+        sx={{ width: '50vw' }} // Set the total width of the container
         >
-          Pause
-        </Button>
-      </Grid>
-      <Grid item>
-        <Button
-          variant="contained"
-          color="default"
-          onClick={stopTimer}
-          startIcon={<StopIcon />}
-        >
-          Stop
-        </Button>
-      </Grid>
-      <Grid item>
-        <div>
-          <strong>Time:</strong> {time} seconds
-        </div>
+            <Grid item xs={4}>
+                <Button
+                variant="contained"
+                onClick={startTimer}
+                startIcon={<PlayArrowIcon />}
+                disabled={isRunning}
+                >
+                Start
+                </Button>
+            </Grid>
+            <Grid item xs={4}>
+                <Button
+                variant="contained"
+                onClick={pauseTimer}
+                startIcon={<PauseIcon />}
+                disabled={!isRunning}
+                >
+                Pause
+                </Button>
+            </Grid>
+            <Grid item xs={4}>
+                <Button
+                variant="contained"
+                onClick={stopTimer}
+                startIcon={<StopIcon />}
+                >
+                Stop
+                </Button>
+            </Grid>
+
+
+
       </Grid>
     </Grid>
   );
 }
 
-export default StopwatchTimer;
+export default Timer;
+

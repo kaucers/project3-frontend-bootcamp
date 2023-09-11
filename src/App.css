@@ -16,11 +16,27 @@
 .main{
   width: 80vw;
   color: black;
-  min-height: 80vh;
+  min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
+  margin: 10px auto;
+}
+
+.entry{
+  width: 80vw;
+  color: black;
+  min-height: 80vh;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  margin: 10px auto;
+
+}
+
+.offset{
+  margin-bottom: 10px;
+
 }
 
 /* Footer.css */
