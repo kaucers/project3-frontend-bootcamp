@@ -238,37 +238,34 @@ export default function Entry() {
     fetchDataAndSetPoints();
   }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
 
-  // // Define the useEffect hook
-  // useEffect(() => {
-  //   // Function to make the axios PUSH request to entry tbl_current_pefs
+  // Define the useEffect hook
+useEffect(() => {
+  // Function to make the axios POST request to entry tbl_current_pefs
+  const updateDailyTarget = async () => {
+    try {
+      const response = await axios.post(`${BACKEND_URL}/daily`, {
+        sit_up: sliderSitUp,
+        push_up: sliderValuePU,
+        run: sliderRun,
+        date: new Date(), // Today's date (indepdent on frontend)
+        user_id: userId,
+      });
 
-  // //   const updateDailyTarget = async () => {
-  //     try {
-  //       const response = await axios.push(`${BACKEND_URL}/entry`, {
-  //         params: {
-  //           sit_up: sliderSitUp,
-  //           push_up: sliderValuePU,
-  //           run: sliderRun,
-  //           date: new Date(), //Today's date
-  //           user_id: userId
-  //         },
-  //       });
-  //       // console.log(response);
+      // Check for a successful response (you might need to adjust this condition)
+      if (response.status === 200) {
+        console.log('Successful Entry!');
+      } else {
+        console.error('Invalid response data format');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
-  //       if (response){
-  //         console.log('Successful Entry!');
-  //       }
-  //        else {
-  //         console.error('Invalid response data format');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error:', error);
-  //     }
-  //   };
+  // Call the function when dependencies change
+  updateDailyTarget();
+}, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId]); // Dependencies: trigger when these states change
 
-  //   // Call the function when dependencies change
-  //   fetchDataAndSetPoints();
-  // }, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId]); // Dependencies: trigger when these states change
   
 
   useEffect(() => {
