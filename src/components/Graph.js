@@ -29,22 +29,28 @@ export default function Graph() {
   const [targetSitUp, setsTargetSitUp] = useState(30);
   const [targetRun, setsTargetRun] = useState(750);
   const [testDate, setTestDate] = useState(null);
+  const [userTarget, setUserTarget] = useState(null);
   // Graphing States
   const [userHistory, setUserHistory] = useState(null);
+  const [selectedGraph, setSelectedGraph] = useState('sit_up'); // Initially selected graph
+  // Training Data
+  const [userTrainingPu, setUserTrainingPu] = useState(null);
+  const [userTrainingSitUp, setUserTrainingSitUp] = useState(null);
+  const [userTrainingRun, setUserTrainingRun] = useState(null);
 
-  function calculateDaysRemaining(currentDate, testDate) {
-    if (testDate){ //if there is testDate
-    // Calculate the time difference in milliseconds
-    const timeDifference = testDate - currentDate;
-    // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
-    const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  // Define a function to handle graph button clicks
+  const handleGraphClick = (graphName) => {
+    setSelectedGraph(graphName);
+  };
   
-    return daysRemaining;
-
-    }
-    else{
-      return null;
-    }
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+  
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+  
+    return `${formattedMinutes}min:${formattedSeconds}s`;
   }
 
   function getFormattedDate() {
@@ -83,6 +89,18 @@ export default function Graph() {
 
     }
 
+  function capitalizeWords(str) {
+    if (str.includes('_')) {
+      return str
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('-')
+        .toUpperCase() 
+        ;
+    } else {
+      return str.toUpperCase() ;
+    }
+  }
 
 
 // Create an array of objects with keys: 
@@ -115,7 +133,7 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
   
       // Check if it's a recovery day (e.g., every 'recoveryDays' days)
       const isRecoveryDay = (i + 1) % recoveryDays === 0;
-      console.log(isRecoveryDay)
+      // console.log(isRecoveryDay)
   
       // Calculate the exercise target for the current date
       const exerciseTargetForDate = isRecoveryDay
@@ -141,16 +159,33 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
   }
   
   if (userHistory){
-    const workoutPlan = getDailyTargets(userHistory, targetPu, testDate,2,"push_up");
+    const workoutPlan = getDailyTargets(userHistory, targetSwitch(selectedGraph), testDate,2,"push_up");
     console.log(workoutPlan);
     console.log(`${targetPu}`)
   }
    
 
+  // Switching Target 
+  function targetSwitch(selectedGraph) {
+    // Convert date strings to Date objects
+    console.log(`Selected Graph: ${selectedGraph}`)
+    if (selectedGraph === 'run'){
+      return userTrainingRun
+    }
+    else if (selectedGraph === 'push_up'){
+      return userTrainingPu
+    }
+    else if (selectedGraph === 'sit_up'){
+      return userTrainingSitUp
+    }
+  }
+
 // Plotting line chart generic for excercises  
 function plotLine(data,targetData,xKey,yKey) {
     // Convert date strings to Date objects
-    if (data != null){
+    console.log(`User Training: ${JSON.stringify(targetData)}`)
+    if (data !== null && targetData !== null){
+      console.log(`Plot Data: ${JSON.stringify(data)}`)
         data.forEach((entry) => {
             entry.date = new Date(entry.date).toLocaleDateString();; // Converts 'yyyy-MM-dd' string to Date object
         
@@ -164,18 +199,7 @@ function plotLine(data,targetData,xKey,yKey) {
       // For example, let's prefix each label with "Day "
       return `${new Date(value).toLocaleDateString()}`;
     };
-
-    function capitalizeWords(str) {
-      if (str.includes('_')) {
-        return str
-          .split('_')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('-');
-      } else {
-        return str;
-      }
-    }
-    
+      
     const CustomTooltip = ({ active, payload, label }) => {
       if (active && payload && payload.length) {
         return (
@@ -183,7 +207,7 @@ function plotLine(data,targetData,xKey,yKey) {
             <p className="label">{`Date: ${new Date(label).toLocaleDateString()}`}</p>
             {payload.map((entry, index) => (
             <p key={index} style={{ color: entry.color }}>
-              {`${entry.name}: ${entry.value}`}
+              {`${entry.name}: ${selectedGraph === "run" ? formatTime(entry.value) : entry.value}`}
             </p>
           ))}
           </div>
@@ -211,7 +235,7 @@ function plotLine(data,targetData,xKey,yKey) {
           
             <YAxis>
                 <Label
-                    value= {`Number of ${capitalizeWords(yKey)}`} // Your Y-axis label text
+                    value= {`${capitalizeWords(yKey)} Performance`} // Your Y-axis label text
                     angle={-90} // Rotate the label text to a vertical position
                     position="insideLeft" // Position the label inside the Y-axis
                     dy={10} // Adjust the label's vertical position as needed
@@ -276,6 +300,8 @@ function plotLine(data,targetData,xKey,yKey) {
 
       if (res.status === 200) {
         console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].sit_up)}`)
+        setUserTarget(res.data.tbl_target_pefs[0])
         setTargetPu(res.data.tbl_target_pefs[0].push_up)
         setsTargetSitUp(res.data.tbl_target_pefs[0].sit_up)
         setsTargetRun(res.data.tbl_target_pefs[0].run)
@@ -298,6 +324,18 @@ function plotLine(data,targetData,xKey,yKey) {
     }
   }, [userEmail]);
 
+  useEffect(() => {
+    // Function to fetch exercise data based on user's email
+    if (userHistory !== null && userTarget !== null) {
+      // Both data and targetData are loaded
+      // You can perform your post-processing here
+      setUserTrainingSitUp(getDailyTargets(userHistory, userTarget.sit_up, testDate,2,'sit_up'))
+      setUserTrainingPu(getDailyTargets(userHistory, userTarget.push_up, testDate,2,'push_up'))
+      setUserTrainingRun(getDailyTargets(userHistory, userTarget.run, testDate,2,'run'))      
+    }
+    console.log(`Training Data: ${userHistory !== null && userTarget !== null }`)
+  }, [userHistory,userTarget,testDate,selectedGraph]);
+
   return (
 <div className="entry">
   <Stack direction="column" alignItems="center">
@@ -307,13 +345,13 @@ function plotLine(data,targetData,xKey,yKey) {
         divider={<Divider orientation="vertical" flexItem />}
         spacing={2}
       >
-        <Button variant="outlined" href="#outlined-buttons">
+        <Button onClick={() => handleGraphClick('sit_up')} variant="outlined" href="#outlined-buttons">
           Sit-Up
         </Button>
-        <Button variant="outlined" href="#outlined-buttons">
+        <Button onClick={() => handleGraphClick('push_up')} variant="outlined" href="#outlined-buttons">
           Push-Up
         </Button>
-        <Button variant="outlined" href="#outlined-buttons">
+        <Button onClick={() => handleGraphClick('run')} variant="outlined" href="#outlined-buttons">
           Running
         </Button>
       </Stack>
@@ -338,10 +376,10 @@ function plotLine(data,targetData,xKey,yKey) {
             color: 'gray',
         }}
         >
-        {`Performance: Push-Ups (${getFormattedDate()})`}
+        {`Performance: ${capitalizeWords(selectedGraph)} (${getFormattedDate()})`}
         </Typography>
-        {/* Content within the Paper component */}
-        {plotLine(userHistory, getDailyTargets(userHistory, targetPu, testDate,2,"push_up"),"date", "push_up")}
+        {/* Render the selected graph */}
+        {plotLine(userHistory, targetSwitch(selectedGraph),"date", selectedGraph)}
     </Paper>
   </Stack>
 </div>
