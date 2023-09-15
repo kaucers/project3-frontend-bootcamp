@@ -7,6 +7,7 @@ import BottomNavi from "./components/BottomNavi";
 //routes
 import Calculator from "./components/Calculator.js";
 import Entry from "./components/Entry.js";
+import Graph from "./components/Graph.js";
 
 const App = () => {
 
@@ -20,6 +21,7 @@ const App = () => {
             <Routes>
               <Route exact path="/" element={<Calculator />} />
               <Route exact path="/entry" element={<Entry />} />
+              <Route exact path="/graph" element={<Graph />} />
             </Routes>
           </div>
           
