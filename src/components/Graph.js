@@ -50,7 +50,7 @@ export default function Graph() {
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
   
-    return `${formattedMinutes}min:${formattedSeconds}s`;
+    return `${formattedMinutes}min:${Math.round(formattedSeconds)}s`;
   }
 
   function getFormattedDate() {
@@ -108,23 +108,35 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
     // Create an array to store the workout plan
     const workoutPlan = [];
 
-    if (userHistory){
-      // Find the latest user history entry
-    const latestEntry = userHistory.reduce((latest, entry) => {
-      const entryDate = new Date(entry.date);
-      const latestDate = new Date(latest.date);
-      return entryDate > latestDate ? entry : latest;
-    });
+    if (userHistory) {
+      // Initialize variables to store the latest and second latest entries
+      let latestEntry = null;
+      let secondLatestEntry = null;
+    
+      // Iterate through the userHistory array
+      userHistory.forEach((entry) => {
+        const entryDate = new Date(entry.date);
+    
+        if (!latestEntry || entryDate > new Date(latestEntry.date)) {
+          // If no latest entry or the current entry is more recent than the latest,
+          // update the second latest entry to the current latest entry,
+          // and update the latest entry to the current entry.
+          secondLatestEntry = latestEntry;
+          latestEntry = entry;
+        }
+      });
+    
   
     // Calculate the remaining days until the testDate
     const currentDate = new Date();
     const daysUntilTest = Math.ceil((new Date(testDate) - currentDate) / (1000 * 60 * 60 * 24));
-  
+    console.log(`Days Remaining: ${daysUntilTest}`)
+
     // Calculate the initial exercise target increment
-    const dailyIncrement = Math.ceil((testTarget - latestEntry[excerciseType]) / daysUntilTest);
+    const dailyIncrement = Math.ceil((testTarget - secondLatestEntry[excerciseType]) / daysUntilTest);
   
     // Initialize the current exercise count with the latest entry
-    let currentExerciseCount = latestEntry[excerciseType];
+    let currentExerciseCount = secondLatestEntry[excerciseType];
  
     // Loop through each day leading up to the testDate
     for (let i = 0; i < daysUntilTest; i++) {
@@ -136,9 +148,18 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
       // console.log(isRecoveryDay)
   
       // Calculate the exercise target for the current date
-      const exerciseTargetForDate = isRecoveryDay
-        ? currentExerciseCount // Maintain the same target as the previous day on recovery days
-        : currentExerciseCount + dailyIncrement;
+      // Once reached target
+      let exerciseTargetForDate = isRecoveryDay
+      ? currentExerciseCount // Maintain the same target as the previous day on recovery days
+      : currentExerciseCount + dailyIncrement*(recoveryDays/3);  
+
+      if (currentExerciseCount >= testTarget && excerciseType!=="run"){ //if target not met, increase
+        exerciseTargetForDate = testTarget + dailyIncrement
+      }    
+
+      else if ((currentExerciseCount <= testTarget) && (excerciseType ==="run")){
+        exerciseTargetForDate = testTarget - dailyIncrement
+      }
   
       // Create an object for the workout plan for the current date
       const workoutPlanEntry = { 
@@ -158,11 +179,11 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
     
   }
   
-  if (userHistory){
-    const workoutPlan = getDailyTargets(userHistory, targetSwitch(selectedGraph), testDate,2,"push_up");
-    console.log(workoutPlan);
-    console.log(`${targetPu}`)
-  }
+  // if (userHistory){
+  //   const workoutPlan = getDailyTargets(userHistory, targetSwitch(selectedGraph), testDate,2,"push_up");
+  //   console.log(workoutPlan);
+  //   console.log(`${targetPu}`)
+  // }
    
 
   // Switching Target 
@@ -329,9 +350,9 @@ function plotLine(data,targetData,xKey,yKey) {
     if (userHistory !== null && userTarget !== null) {
       // Both data and targetData are loaded
       // You can perform your post-processing here
-      setUserTrainingSitUp(getDailyTargets(userHistory, userTarget.sit_up, testDate,2,'sit_up'))
-      setUserTrainingPu(getDailyTargets(userHistory, userTarget.push_up, testDate,2,'push_up'))
-      setUserTrainingRun(getDailyTargets(userHistory, userTarget.run, testDate,2,'run'))      
+      setUserTrainingSitUp(getDailyTargets(userHistory, userTarget.sit_up, testDate,3,'sit_up'))
+      setUserTrainingPu(getDailyTargets(userHistory, userTarget.push_up, testDate,3,'push_up'))
+      setUserTrainingRun(getDailyTargets(userHistory, userTarget.run, testDate,5,'run'))      
     }
     console.log(`Training Data: ${userHistory !== null && userTarget !== null }`)
   }, [userHistory,userTarget,testDate,selectedGraph]);
@@ -380,6 +401,8 @@ function plotLine(data,targetData,xKey,yKey) {
         </Typography>
         {/* Render the selected graph */}
         {plotLine(userHistory, targetSwitch(selectedGraph),"date", selectedGraph)}
+        {console.log(userTrainingRun)}
+        {console.log(userHistory)}
     </Paper>
   </Stack>
 </div>

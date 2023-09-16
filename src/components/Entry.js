@@ -396,7 +396,7 @@ useEffect(() => {
 
         <Grid item xs={2}>
           <ItemTarget>
-          <Typography variant="body1">Target</Typography> 
+          <Typography variant="body1">Today's Target</Typography> 
           <Divider variant="middle" />
           <Typography variant="h3">{targetPu}</Typography>
           </ItemTarget>
@@ -435,7 +435,7 @@ useEffect(() => {
 
         <Grid item xs={2}>
           <ItemTarget>
-          <Typography variant="body1">Target</Typography> 
+          <Typography variant="body1">Today's Target</Typography> 
           <Divider variant="middle" />
           <Typography variant="h3">{targetSitUp}</Typography>
           </ItemTarget>
@@ -473,7 +473,7 @@ useEffect(() => {
 
         <Grid item xs={2}>
           <ItemTarget>
-          <Typography variant="body1">Target</Typography> 
+          <Typography variant="body1">Today's Target</Typography> 
           <Divider variant="middle" />
           <Typography variant="h5">{formatTime(targetRun)}</Typography>
           </ItemTarget>
