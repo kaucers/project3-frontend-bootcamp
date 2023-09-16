@@ -43,14 +43,15 @@ export default function Calculator() {
   const [pointsRun, setpointsRun] = useState(0);
   const [pointsPushUp, setpointsPushUp] = useState(0);
   const [testDate, setTestDate] = useState(null);
-  const [award, setAward] = useState("");
   // Display Todays' Date
   const [todayDate, setTodayDate] = useState("");
-  //Get User data
+  // Get User data
   const [userId, setUserId] = useState(null);
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
-  //Detect if form is changed
+  // Detect if form is changed
   const [formChanged, setFormChanged] = useState(false);
+  // M-M State  
+  const [award, setAward] = useState("");
 
   const handleSliderPushUpChange = (event, newValue) => {
     setSliderValuePU(newValue);

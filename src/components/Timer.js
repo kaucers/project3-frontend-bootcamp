@@ -58,7 +58,7 @@ function Timer() {
 
   useEffect(() => {
     // console.log(time)
-    if ((time + 150) % 60000 === 0) {
+    if ((time + 150) % 30000 === 0) { //at 30s mark
       // console.log("Audio played.")
       playAudio(ring); // Replace with the actual audio file path
       setToggleBackdrop(true);
