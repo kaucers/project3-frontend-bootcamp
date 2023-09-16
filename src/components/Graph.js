@@ -5,7 +5,6 @@ import Divider from '@mui/material/Divider';
 import axios from 'axios';
 import BACKEND_URL from './constant';
 import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
 import {
     LineChart,
     Line,
@@ -214,6 +213,8 @@ function plotLine(data,targetData,xKey,yKey) {
         targetData = convertDatesToTimestamps(targetData);
         console.log(targetData);
           });
+          // Sort data by timestamps (avoid entry bug)
+          data.sort((a, b) => a.timestamp - b.timestamp);
 
     const customTickFormatter = (value) => {
       // You can add your custom formatting logic here

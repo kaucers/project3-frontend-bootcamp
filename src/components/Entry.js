@@ -4,15 +4,10 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import AirlineSeatLegroomReducedIcon from '@mui/icons-material/AirlineSeatLegroomReduced';
-import TextField from '@mui/material/TextField';
 import { Slider, Typography, Stack } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
@@ -63,6 +58,9 @@ export default function Entry() {
   const [targetRun, setsTargetRun] = useState(750);
   const [userId, setUserId] = useState(null);
 
+  // Setting Training Schedule
+  const [userTarget, setUserTarget] = useState(null);
+  const [userHistory, setUserHistory] = useState(null);
   // Display Points
   const [pointsSitUp, setpointsSitUp] = useState(0);
   const [pointsRun, setpointsRun] = useState(0);
@@ -70,6 +68,8 @@ export default function Entry() {
   const [award, setAward] = useState("");
   const [testDate, setTestDate] = useState(null);
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
+
+  const [userDataFetched, setUserDataFetched] = useState(false); //track user data fetched before updating via slider
 
   const handleSliderPushUpChange = (event, newValue) => {
     setSliderValuePU(newValue);
@@ -103,7 +103,7 @@ export default function Entry() {
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
   
-    return `${formattedMinutes}min:${formattedSeconds}s`;
+    return `${formattedMinutes}min:${Math.round(formattedSeconds)}s`;
   }
 
   function calculateDaysRemaining(currentDate, testDate) {
@@ -203,6 +203,118 @@ export default function Entry() {
     return age;
   }
 
+  // Create an array of objects with keys: 
+function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, excerciseType) {
+  // Create an array to store the workout plan
+  const workoutPlan = [];
+
+  if (userHistory) {
+    // Initialize variables to store the latest and second latest entries
+    let latestEntry = null;
+    let secondLatestEntry = null;
+  
+    // Iterate through the userHistory array
+    userHistory.forEach((entry) => {
+      const entryDate = new Date(entry.date);
+  
+      if (!latestEntry || entryDate > new Date(latestEntry.date)) {
+        // If no latest entry or the current entry is more recent than the latest,
+        // update the second latest entry to the current latest entry,
+        // and update the latest entry to the current entry.
+        secondLatestEntry = latestEntry;
+        latestEntry = entry;
+      }
+    });
+  
+
+  // Calculate the remaining days until the testDate
+  const currentDate = new Date();
+  const daysUntilTest = Math.ceil((new Date(testDate) - currentDate) / (1000 * 60 * 60 * 24));
+  console.log(`Days Remaining: ${daysUntilTest}`)
+
+  // Calculate the initial exercise target increment
+  const dailyIncrement = Math.ceil((testTarget - secondLatestEntry[excerciseType]) / daysUntilTest);
+
+  // Initialize the current exercise count with the latest entry
+  let currentExerciseCount = secondLatestEntry[excerciseType];
+
+  // Loop through each day leading up to the testDate
+  for (let i = 0; i < daysUntilTest; i++) {
+    const currentDateCopy = new Date(currentDate);
+    currentDateCopy.setDate(currentDate.getDate() + i);
+
+    // Check if it's a recovery day (e.g., every 'recoveryDays' days)
+    const isRecoveryDay = (i + 1) % recoveryDays === 0;
+    // console.log(isRecoveryDay)
+
+    // Calculate the exercise target for the current date
+    // Once reached target
+    let exerciseTargetForDate = isRecoveryDay
+    ? currentExerciseCount // Maintain the same target as the previous day on recovery days
+    : currentExerciseCount + dailyIncrement*(recoveryDays/3);  
+
+    if (currentExerciseCount >= testTarget && excerciseType!=="run"){ //if target not met, increase
+      exerciseTargetForDate = testTarget + dailyIncrement
+    }    
+
+    else if ((currentExerciseCount <= testTarget) && (excerciseType ==="run")){
+      exerciseTargetForDate = testTarget - dailyIncrement
+    }
+
+    // Create an object for the workout plan for the current date
+    const workoutPlanEntry = { 
+      date: currentDateCopy.toLocaleDateString(),
+      exerciseTarget: exerciseTargetForDate,
+    };
+
+    // Add the workout plan entry to the array
+    workoutPlan.push(workoutPlanEntry);
+
+    // Update the current exercise count for the next day
+    currentExerciseCount = exerciseTargetForDate;
+  }
+
+  return workoutPlan;
+  }
+  
+}
+
+  // Define the useEffect hook
+  useEffect(() => {
+    // Function to make the axios request and get user perf history
+    const fetchUserHistory = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/history`, {
+          params: {
+            email: userEmail,
+          },
+        });
+        // console.log(response);
+        if (res.status === 200) {
+            setUserHistory(res.data)
+            // Use reduce to find the object with the latest date
+            const latestObject = res.data.reduce((latest, current) => {
+              const latestDate = new Date(latest.date);
+              const currentDate = new Date(current.date);
+              return currentDate > latestDate ? current : latest;
+            }, res.data[0]); // Initialize with the first object as the starting point
+            setSliderValuePU(latestObject.push_up)
+            setsSliderSitUp(latestObject.sit_up)
+            setsSliderRun(latestObject.run)
+
+          console.log(`Historical: ${JSON.stringify(res.data)}`)
+        } else {
+          console.error('Invalid response data format');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    // Call the function when dependencies change
+    fetchUserHistory();
+  }, [userEmail]); // Dependencies: trigger when these states change
+  
   // Define the useEffect hook
   useEffect(() => {
     // Function to make the axios request and update the points
@@ -238,9 +350,13 @@ export default function Entry() {
     fetchDataAndSetPoints();
   }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
 
+
+  
   // Define the useEffect hook
 useEffect(() => {
   // Function to make the axios POST request to entry tbl_current_pefs
+  if (userHistory!== null && userTarget!==null){
+    
   const updateDailyTarget = async () => {
     try {
       const response = await axios.post(`${BACKEND_URL}/daily`, {
@@ -264,7 +380,8 @@ useEffect(() => {
 
   // Call the function when dependencies change
   updateDailyTarget();
-}, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId]); // Dependencies: trigger when these states change
+}
+}, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId,userHistory]); // Dependencies: trigger when these states change
 
   
 
@@ -276,9 +393,7 @@ useEffect(() => {
 
       if (res.status === 200) {
         console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-        setTargetPu(res.data.tbl_target_pefs[0].push_up)
-        setsTargetSitUp(res.data.tbl_target_pefs[0].sit_up)
-        setsTargetRun(res.data.tbl_target_pefs[0].run)
+        setUserTarget(res.data.tbl_target_pefs[0])
         setTestDate(new Date(res.data.tbl_target_pefs[0].end_date))
         setUserId(res.data.id) //sets the UserId
         // Access end_date from the first target performance record
@@ -302,8 +417,24 @@ useEffect(() => {
   }, [userEmail]);
 
 
+  useEffect(() => {
+    // Function to fetch exercise data based on user's email
+    if (userHistory !== null && userTarget !== null) {
+      // Both data and targetData are loaded
+      // You can perform your post-processing here
+      setsTargetSitUp(getDailyTargets(userHistory, userTarget.sit_up, testDate,3,'sit_up')[0].exerciseTarget)
+      setTargetPu(getDailyTargets(userHistory, userTarget.push_up, testDate,3,'push_up')[0].exerciseTarget)
+      setsTargetRun(getDailyTargets(userHistory, userTarget.run, testDate,5,'run')[0].exerciseTarget)      
+    }
+    console.log(`Training Data: ${userHistory !== null && userTarget !== null }`)
+  }, [userHistory,userTarget,testDate]);
+
+
   return (
     <div className="entry">
+      {console.log(`Target : ${JSON.stringify(userTarget)}`)}
+      {console.log(`History : ${JSON.stringify(userHistory)}`)}
+      {console.log(targetPu)}
     
     <FormControl >
     <Box sx={{ flexGrow: 1 }}>
