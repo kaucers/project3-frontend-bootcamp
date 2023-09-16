@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Footer from "./components/Footer";
 import ResponsiveAppBar from "./components/ResponsiveAppBar";
 import BottomNavi from "./components/BottomNavi";
 //routes
@@ -9,11 +8,14 @@ import Calculator from "./components/Calculator.js";
 import Entry from "./components/Entry.js";
 import Graph from "./components/Graph.js";
 
+// import Footer from "./components/Footer";
+
 const App = () => {
 
 
   return (
     <BrowserRouter>
+    {console.log("ArmyFit360 © 2023 Dexter Chew, Karina. All rights reserved.")}
         <div className="App">
           <ResponsiveAppBar/>
           <BottomNavi/>

@@ -28,7 +28,7 @@ function Timer() {
       }, 150);
       setIsRunning(true);
       setIntervalId(id);    
-      console.log(time)
+      // console.log(time)
       
     }
   };
@@ -59,7 +59,7 @@ function Timer() {
   useEffect(() => {
     // console.log(time)
     if ((time + 150) % 60000 === 0) {
-      console.log("Audio played.")
+      // console.log("Audio played.")
       playAudio(ring); // Replace with the actual audio file path
       setToggleBackdrop(true);
     }  

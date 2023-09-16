@@ -50,10 +50,10 @@ function ResponsiveAppBar() {
       const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
       if (res.status === 200) {
-        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setUserFirstName(res.data.first_name) //sets the user first name
         setUserLastName(res.data.last_name) //sets the user last name
-        console.log("Fetched User Data")
+        // console.log("Fetched User Data")
        
       } else {
         console.error('Failed to fetch exercise data.');

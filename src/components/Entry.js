@@ -195,7 +195,6 @@ export default function Entry() {
     const currentDate = new Date();
     // Calculate the difference in milliseconds between the current date and birthdate
     const ageDifference = currentDate - new Date(birthdate);
-    console.log(ageDifference);
     // Convert the age difference to a Date object to extract years
     const ageDate = new Date(ageDifference);
     // Get the year (subtract 1970 because ageDate is relative to 1970)
@@ -230,7 +229,6 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
   // Calculate the remaining days until the testDate
   const currentDate = new Date();
   const daysUntilTest = Math.ceil((new Date(testDate) - currentDate) / (1000 * 60 * 60 * 24));
-  console.log(`Days Remaining: ${daysUntilTest}`)
 
   // Calculate the initial exercise target increment
   const dailyIncrement = Math.ceil((testTarget - secondLatestEntry[excerciseType]) / daysUntilTest);
@@ -337,7 +335,7 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
           setpointsSitUp(response.data[0]);
           setpointsPushUp(response.data[1]);
           setpointsRun(response.data[2]);
-          console.log(`3 Elemens: ${JSON.stringify(response)}`)
+          // console.log(`3 Elemens: ${JSON.stringify(response)}`)
         } else {
           console.error('Invalid response data format');
         }
@@ -392,15 +390,14 @@ useEffect(() => {
       const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
       if (res.status === 200) {
-        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setUserTarget(res.data.tbl_target_pefs[0])
         setTestDate(new Date(res.data.tbl_target_pefs[0].end_date))
         setUserId(res.data.id) //sets the UserId
         // Access end_date from the first target performance record
         // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
-        console.log(res.data.birthday)
         setCurrentAge(calculateAge(res.data.birthday))
-        console.log("Fetched User Data")
+        // console.log("Fetched User Data")
        
       } else {
         console.error('Failed to fetch exercise data.');
@@ -432,9 +429,6 @@ useEffect(() => {
 
   return (
     <div className="entry">
-      {console.log(`Target : ${JSON.stringify(userTarget)}`)}
-      {console.log(`History : ${JSON.stringify(userHistory)}`)}
-      {console.log(targetPu)}
     
     <FormControl >
     <Box sx={{ flexGrow: 1 }}>

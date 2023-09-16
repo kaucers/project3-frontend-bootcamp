@@ -129,7 +129,7 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
     // Calculate the remaining days until the testDate
     const currentDate = new Date();
     const daysUntilTest = Math.ceil((new Date(testDate) - currentDate) / (1000 * 60 * 60 * 24));
-    console.log(`Days Remaining: ${daysUntilTest}`)
+    // console.log(`Days Remaining: ${daysUntilTest}`)
 
     // Calculate the initial exercise target increment
     const dailyIncrement = Math.ceil((testTarget - secondLatestEntry[excerciseType]) / daysUntilTest);
@@ -188,7 +188,7 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
   // Switching Target 
   function targetSwitch(selectedGraph) {
     // Convert date strings to Date objects
-    console.log(`Selected Graph: ${selectedGraph}`)
+    // console.log(`Selected Graph: ${selectedGraph}`)
     if (selectedGraph === 'run'){
       return userTrainingRun
     }
@@ -203,15 +203,15 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
 // Plotting line chart generic for excercises  
 function plotLine(data,targetData,xKey,yKey) {
     // Convert date strings to Date objects
-    console.log(`User Training: ${JSON.stringify(targetData)}`)
+    // console.log(`User Training: ${JSON.stringify(targetData)}`)
     if (data !== null && targetData !== null){
-      console.log(`Plot Data: ${JSON.stringify(data)}`)
+      // console.log(`Plot Data: ${JSON.stringify(data)}`)
         data.forEach((entry) => {
             entry.date = new Date(entry.date).toLocaleDateString();; // Converts 'yyyy-MM-dd' string to Date object
         
         data = convertDatesToTimestamps(data);
         targetData = convertDatesToTimestamps(targetData);
-        console.log(targetData);
+        // console.log(targetData);
           });
           // Sort data by timestamps (avoid entry bug)
           data.sort((a, b) => a.timestamp - b.timestamp);
@@ -252,7 +252,7 @@ function plotLine(data,targetData,xKey,yKey) {
             tickFormatter={customTickFormatter}
             allowDuplicatedCategory={false}
             >       
-            {console.log(convertDatesToTimestampsSingle(targetData[targetData.length-1].date))}         
+            {/* {console.log(convertDatesToTimestampsSingle(targetData[targetData.length-1].date))}          */}
             </XAxis>
           
             <YAxis>
@@ -300,7 +300,7 @@ function plotLine(data,targetData,xKey,yKey) {
         // console.log(response);
         if (res.status === 200) {
             setUserHistory(res.data)
-          console.log(`Historical: ${JSON.stringify(res.data)}`)
+          // console.log(`Historical: ${JSON.stringify(res.data)}`)
         } else {
           console.error('Invalid response data format');
         }

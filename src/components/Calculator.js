@@ -92,7 +92,7 @@ export default function Calculator() {
         run: sliderRun,
         end_date: testDate,
         user_id: userId});
-      console.log('Form submitted successfully:', res.data);
+      // console.log('Form submitted successfully:', res.data);
       setFormChanged(false);
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -181,7 +181,6 @@ export default function Calculator() {
     const currentDate = new Date();
     // Calculate the difference in milliseconds between the current date and birthdate
     const ageDifference = currentDate - new Date(birthdate);
-    console.log(ageDifference);
     // Convert the age difference to a Date object to extract years
     const ageDate = new Date(ageDifference);
     // Get the year (subtract 1970 because ageDate is relative to 1970)
@@ -246,7 +245,7 @@ export default function Calculator() {
       const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
       if (res.status === 200) {
-        console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setSliderValuePU(res.data.tbl_target_pefs[0].push_up)
         setsSliderSitUp(res.data.tbl_target_pefs[0].sit_up)
         setsSliderRun(res.data.tbl_target_pefs[0].run)
@@ -254,7 +253,6 @@ export default function Calculator() {
         setUserId(res.data.id) //sets the UserId
         // Access end_date from the first target performance record
         // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
-        console.log(res.data.birthday)
         setCurrentAge(calculateAge(res.data.birthday))
         console.log("Fetched User Data")
        
