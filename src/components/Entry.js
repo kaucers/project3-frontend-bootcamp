@@ -65,7 +65,7 @@ export default function Entry() {
   const [pointsSitUp, setpointsSitUp] = useState(0);
   const [pointsRun, setpointsRun] = useState(0);
   const [pointsPushUp, setpointsPushUp] = useState(0);
-  const [award, setAward] = useState("");
+  const [award, setAward] = useState("Work Harder");
   const [testDate, setTestDate] = useState(null);
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
 
@@ -313,6 +313,36 @@ function getDailyTargets(userHistory, testTarget, testDate, recoveryDays = 1, ex
     fetchUserHistory();
   }, [userEmail]); // Dependencies: trigger when these states change
   
+  // Get user achievemnets:
+  useEffect(() => {
+    // Function to make the axios request and get user perf history
+    const fetchUserAchievements = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/userachievement`, {
+          params: {
+            email: userEmail,
+          },
+        });
+        // console.log(response);
+        if (res.status === 200) {
+          setAward(res.data)
+            
+
+          console.log(`Historical: ${JSON.stringify(res.data)}`)
+        } else {
+          console.error('Invalid response data format');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    // Call the function when dependencies change
+    fetchUserAchievements();
+  }, [userEmail]); // Dependencies: trigger when these states change
+  
+
+
   // Define the useEffect hook
   useEffect(() => {
     // Function to make the axios request and update the points
@@ -453,9 +483,9 @@ useEffect(() => {
         </Grid>
       <Grid  item xs={4}>
         <TitleHead>
-          <Typography variant="body1">Entry Streak</Typography> 
+          <Typography variant="body1">Achievements</Typography> 
           <Divider variant="middle" />
-          <Typography variant="h5">{"Coming Soon"}</Typography>
+          <Typography variant="h5">{award}</Typography>
           </TitleHead>
         </Grid>
         <Grid  item xs={4}>

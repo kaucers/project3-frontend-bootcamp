@@ -89,6 +89,31 @@ function ResponsiveAppBar() {
     };
   }, []);
 
+  //Process achievements
+  useEffect(() => {
+    // Function to fetch exercise data based on user's email
+  const fetchAward = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/addachievement?email=${userEmail}`);
+
+      if (res.status === 200) {
+        // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+        console.log(`Award?: ${res.data}`)
+       
+      } else {
+        console.error('Failed to fetch awards.');
+      }
+    } catch (error) {
+      console.error('Error fetching awards:', error);
+    }
+  };
+
+    if (userEmail) {
+      // Fetch exercise data when userEmail state changes
+      fetchAward();
+    }
+  }, [userEmail]);
+
   return (
     <AppBar position="static">
       {/* {console.log(JSON.stringify(currentUser))}
