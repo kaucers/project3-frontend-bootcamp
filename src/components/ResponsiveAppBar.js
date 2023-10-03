@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -15,6 +16,7 @@ import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import SignOutButton from "./SignOutButton";
 import BACKEND_URL from './constant';
 import axios from 'axios';
+import Login from './Login';
 
 const pages = ["About", "Contact Us"];
 
@@ -22,11 +24,16 @@ function ResponsiveAppBar() {
  
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(null); //store user from auth
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg");
-  const [userFirstName,setUserFirstName] = useState(null);
-  const [userLastName,setUserLastName] = useState(null);
+  const [userFirstName,setUserFirstName] = useState("Unknown");
+  const [userLastName,setUserLastName] = useState("User");
   const [currentFormattedTime, setCurrentFormattedTime] = useState('');
-
+  //Extract "user" details from here
+  const { isAuthenticated, getAccessTokenSilently, loginWithPopup, user, logout,onRedirectCallback} =
+  useAuth0();
+  const [tokenLoaded, setTokenLoaded] = useState(false);
+  
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
@@ -41,6 +48,43 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+
+
+
+  useEffect(() => {
+    const handleUserLogin = async () => {
+      try {
+        if (isAuthenticated) {
+          const accessToken = await getAccessTokenSilently({
+            audience: process.env.AUDIENCE,
+            scope: 'read:current_user',
+          });
+
+          console.log('Access Token:', accessToken);
+          console.log('Logged-in User Details:', JSON.stringify(user));
+
+          // Update user state with user information
+          // Assuming you have these state setters available
+          setLoggedInUser(user);
+          setUserEmail(user.email);
+          setUserFirstName(user.given_name);
+          setUserLastName(user.family_name);
+
+          // Set tokenLoaded to true when the token is successfully loaded
+          setTokenLoaded(true);
+        }
+      } catch (error) {
+        console.error('Error in user login', error);
+        // Handle the error, possibly by displaying a user-friendly message.
+        // Set tokenLoaded to true even in case of an error, to avoid repeated attempts
+        setTokenLoaded(true);
+      }
+    };
+
+    // Call the function to handle user login when the component mounts
+    handleUserLogin();
+  }, [isAuthenticated, user, getAccessTokenSilently]);
 
   
   useEffect(() => {
@@ -196,6 +240,29 @@ function ResponsiveAppBar() {
           >
             ArmyFit360
           </Typography>
+          {!isAuthenticated && (
+            <Button
+              component={Login}
+              to='/login'
+              sx={{
+                my: 2,
+                color: 'white',
+                display: 'block',
+              }}
+            >
+              Login
+            </Button>
+          )}
+          {isAuthenticated && (
+            <Button
+              onClick={() => {
+                logout({ returnTo: window.location.origin + '/react-auth0' });
+              }}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              Sign Out
+            </Button>
+          )}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button

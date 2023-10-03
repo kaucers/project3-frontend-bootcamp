@@ -50,8 +50,6 @@ export default function Calculator() {
   const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
   // Detect if form is changed
   const [formChanged, setFormChanged] = useState(false);
-  // M-M State  
-  const [award, setAward] = useState("");
 
   const handleSliderPushUpChange = (event, newValue) => {
     setSliderValuePU(newValue);
