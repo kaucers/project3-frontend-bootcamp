@@ -9,6 +9,8 @@ import Calculator from "./components/Calculator.js";
 import Entry from "./components/Entry.js";
 import Graph from "./components/Graph.js";
 import AuthCheck from "./components/AuthCheck";
+import Vision from "./components/Vision";
+// import WebcamImageProcessing from "./components/Vision2"
 
 // import Footer from "./components/Footer";
 import { Auth0Provider } from "@auth0/auth0-react";
@@ -35,6 +37,7 @@ const App = () => {
               <Route exact path="/entry" element={<Entry />} />
               <Route exact path="/graph" element={<Graph />} />
               <Route path='/auth-check' element={<AuthCheck />} />
+              <Route path='/vision' element={<Vision />} />
             </Routes>
           </div>
           
