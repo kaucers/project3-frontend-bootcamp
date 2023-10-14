@@ -10,7 +10,8 @@ import Entry from "./components/Entry.js";
 import Graph from "./components/Graph.js";
 import AuthCheck from "./components/AuthCheck";
 import Vision from "./components/Vision";
-// import WebcamImageProcessing from "./components/Vision2"
+import WebcamImageProcessing from "./components/Vision2"
+import PoseProcessing from "./components/Vision3"
 
 // import Footer from "./components/Footer";
 import { Auth0Provider } from "@auth0/auth0-react";
@@ -37,7 +38,7 @@ const App = () => {
               <Route exact path="/entry" element={<Entry />} />
               <Route exact path="/graph" element={<Graph />} />
               <Route path='/auth-check' element={<AuthCheck />} />
-              <Route path='/vision' element={<Vision />} />
+              <Route path='/vision' element={< PoseProcessing/>} />
             </Routes>
           </div>
           

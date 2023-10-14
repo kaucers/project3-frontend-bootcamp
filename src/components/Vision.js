@@ -43,6 +43,11 @@ function Vision() {
     createPoseLandmarker();
   }, [runningMode]);
 
+  //Effect that only executes when the state of the webcam running changes
+  useEffect(()=>{
+    console.log(`UseEffect: ${webcamRunning}`)
+
+  }, [webcamRunning])
 
 
 
@@ -80,7 +85,7 @@ function Vision() {
 
     //Toggle Effect
     if (webcamRunning === true) {
-      await setWebcamRunning(false);
+      setWebcamRunning(false);
       console.log(webcamRunning)
       console.log("Web Off");
       enableWebcamButtonRef.current.innerText = "ENABLE PREDICTIONS";
@@ -88,7 +93,7 @@ function Vision() {
       
     
     } else {
-      await setWebcamRunning(true);
+      setWebcamRunning(true);
       console.log(webcamRunning)
       console.log("Web On");
       enableWebcamButtonRef.current.innerText = "DISABLE PREDICTIONS";
@@ -130,6 +135,7 @@ function Vision() {
       
       //AI Detectin
       poseLandmarker.detectForVideo(videoRef.current, startTimeMs, (result) => {
+        console.log(videoRef.current)
         const canvasCtx = canvasRef.current.getContext("2d");
         const drawingUtils = new DrawingUtils(canvasCtx);
         canvasCtx.save();
@@ -148,6 +154,7 @@ function Vision() {
     // As long as the webcam is running, keep calling predictwebcam
     if (webcamRunning === false) {
       window.requestAnimationFrame(predictWebcam);
+      console.log(predictWebcam)
     }
   }
 

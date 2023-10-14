@@ -5,22 +5,36 @@ function WebcamImageProcessing() {
   const [frames, setFrames] = useState([]);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const offScreenCanvasRef = useRef(null); // Off-screen canvas for processing
+  const maxFrames = 1; // Maximum number of frames to keep in memory
 
   useEffect(() => {
     let frameCaptureInterval;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const offScreenCanvas = offScreenCanvasRef.current;
+    const offScreenCtx = offScreenCanvas.getContext('2d');
+    
+    let frameIndex = 0; // Index for the circular buffer
+    const circularBuffer = new Array(maxFrames).fill(null); // Circular buffer to store frames
 
-      
     const captureFrame = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
+      
+      offScreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+      offScreenCtx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
       // Apply image processing (e.g., grayscale filter)
-      const processedFrame = applyGrayscaleFilter(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      // Update the frames state with the processed frame
-      setFrames((prevFrames) => [...prevFrames, processedFrame]);
+      const processedFrame = applyGrayscaleFilter(offScreenCtx.getImageData(0, 0, canvas.width, canvas.height));
+      // ctx.putImageData(processedFrame, 0, 0); // Corrected putImageData arguments
+      // Store the processed frame in the circular buffer
+      circularBuffer[frameIndex] = processedFrame;
+
+      // Set the frames state with a subset of the circular buffer (latest frames)
+      setFrames([...circularBuffer.filter(frame => frame !== null)]);
+
+      // Update the circular buffer index (cycling through frames)
+      frameIndex = (frameIndex + 1) % maxFrames;
     };
 
     const startFrameCapture = () => {
@@ -103,6 +117,7 @@ function WebcamImageProcessing() {
       <video ref={videoRef} autoPlay playsInline muted />
       <div>
       <canvas ref={canvasRef} width={videoRef.current?.videoWidth} height={videoRef.current?.videoHeight} />
+      <canvas ref={offScreenCanvasRef} width={videoRef.current?.videoWidth} height={videoRef.current?.videoHeight} />
       </div>
     </div>
   );
