@@ -26,20 +26,13 @@ function ResponsiveAppBar2() {
   const [userFirstName, setUserFirstName] = useState('');
   const [userLastName, setUserLastName] = useState('');
   const [currentFormattedTime, setCurrentFormattedTime] = useState('');
-  console.log('isAuthenticated :>> ', isAuthenticated);
+  // console.log('isAuthenticated :>> ', isAuthenticated);
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
   };
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
   };
 
   useEffect(() => {
@@ -90,10 +83,11 @@ function ResponsiveAppBar2() {
       clearInterval(intervalId);
     };
   }, []);
-  console.log('userFirstName :>> ', userFirstName);
+  // console.log('userFirstName :>> ', userFirstName);
+
   return (
     <AppBar position='static'>
-        {console.log(user)}
+      {/* {console.log(user)} */}
       {/* {console.log(JSON.stringify(currentUser))}
       {console.log(currentUser?.photoURL)} */}
       <Container maxWidth='xl'>
@@ -195,7 +189,7 @@ function ResponsiveAppBar2() {
           {isAuthenticated && (
             <Button
               onClick={() => {
-                logout({ returnTo: window.location.origin + '/react-auth0' });
+                logout({ returnTo: window.location.origin });
               }}
               sx={{ my: 2, color: 'white', display: 'block' }}
             >
@@ -222,7 +216,8 @@ function ResponsiveAppBar2() {
                   {`Time: ${currentFormattedTime}`}
                 </Typography>
                 <Typography variant='body1' textAlign='right'>
-                  {`Welcome back, ${userFirstName} ${userLastName}`}
+                  {/* {`welcome back, ${userFirstName} ${userLastName}`} */}
+                  {`Welcome Back, ${user.first_name} ${user.last_name}`}
                 </Typography>
               </>
             )}

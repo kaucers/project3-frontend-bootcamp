@@ -9,6 +9,12 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       await loginWithRedirect();
+
+      // POST request to BE API endpiont that returns a session token
+
+      // store session token with JWT (skip if not JWT)
+
+      // use react context/cookies/localStorage/App.js to store JWT/session token (Bearer Token/accessToken)
     } catch (error) {
       setError(error.message);
     }

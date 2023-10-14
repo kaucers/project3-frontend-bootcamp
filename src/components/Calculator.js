@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -28,7 +28,7 @@ const Item = styled(Paper)(({ theme }) => ({
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
-  height: "80%",
+  height: '80%',
   color: theme.palette.text.secondary,
 }));
 
@@ -44,10 +44,10 @@ export default function Calculator() {
   const [pointsPushUp, setpointsPushUp] = useState(0);
   const [testDate, setTestDate] = useState(null);
   // Display Todays' Date
-  const [todayDate, setTodayDate] = useState("");
+  const [todayDate, setTodayDate] = useState('');
   // Get User data
   const [userId, setUserId] = useState(null);
-  const [userEmail,setUserEmail] = useState("dexterchewxh@hotmail.sg"); //to change when deployed
+  const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
   // Detect if form is changed
   const [formChanged, setFormChanged] = useState(false);
 
@@ -77,20 +77,19 @@ export default function Calculator() {
       setError(true);
       setCurrentAge(inputValue);
     }
-    
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${BACKEND_URL}/updatetarget`,
-      { 
+      const res = await axios.post(`${BACKEND_URL}/updatetarget`, {
         push_up: sliderValuePU,
-        sit_up:sliderSitUp,
+        sit_up: sliderSitUp,
         run: sliderRun,
         end_date: testDate,
-        user_id: userId});
+        user_id: userId,
+      });
       // console.log('Form submitted successfully:', res.data);
       setFormChanged(false);
     } catch (error) {
@@ -101,10 +100,10 @@ export default function Calculator() {
   function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-  
+
     const formattedMinutes = minutes.toString().padStart(2, '0');
     const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
-  
+
     return `${formattedMinutes}min:${formattedSeconds}s`;
   }
 
@@ -142,9 +141,9 @@ export default function Calculator() {
       return 14;
     }
   }
-  
+
   function calculateAwardType() {
-    let totalPoints=pointsPushUp+pointsRun+pointsSitUp;
+    let totalPoints = pointsPushUp + pointsRun + pointsSitUp;
     if (totalPoints >= 90) {
       return 'Gold (Commando / Diver / Guards)';
     } else if (totalPoints >= 85) {
@@ -159,18 +158,17 @@ export default function Calculator() {
       return 'No Award'; // You can customize this message as needed
     }
   }
-  
-  function calculateDaysRemaining(currentDate, testDate) {
-    if (testDate){ //if there is testDate
-    // Calculate the time difference in milliseconds
-    const timeDifference = testDate - currentDate;
-    // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
-    const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-  
-    return daysRemaining;
 
-    }
-    else{
+  function calculateDaysRemaining(currentDate, testDate) {
+    if (testDate) {
+      //if there is testDate
+      // Calculate the time difference in milliseconds
+      const timeDifference = testDate - currentDate;
+      // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
+      const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+      return daysRemaining;
+    } else {
       return null;
     }
   }
@@ -187,16 +185,14 @@ export default function Calculator() {
     return age;
   }
 
-  
-
-  useEffect(() => { //Get today's date
+  useEffect(() => {
+    //Get today's date
     // Create a new Date object for today's date
     const currentDate = new Date();
     // Set the formatted date in the state
     setTodayDate(currentDate);
-
   }, []);
-  
+
   // Define the useEffect hook
   useEffect(() => {
     // Function to make the axios request and update the points
@@ -231,37 +227,34 @@ export default function Calculator() {
     fetchDataAndSetPoints();
   }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
 
-  
   //  // Define the useEffect hook
   //  useEffect(() => {
   //   // Function to make the axios request and update the target
 
-
   useEffect(() => {
     // Function to fetch exercise data based on user's email
-  const fetchTargetData = async () => {
-    try {
-      const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
+    const fetchTargetData = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
-      if (res.status === 200) {
-        // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-        setSliderValuePU(res.data.tbl_target_pefs[0].push_up)
-        setsSliderSitUp(res.data.tbl_target_pefs[0].sit_up)
-        setsSliderRun(res.data.tbl_target_pefs[0].run)
-        setTestDate(new Date(res.data.tbl_target_pefs[0].end_date))
-        setUserId(res.data.id) //sets the UserId
-        // Access end_date from the first target performance record
-        // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
-        setCurrentAge(calculateAge(res.data.birthday))
-        console.log("Fetched User Data")
-       
-      } else {
-        console.error('Failed to fetch exercise data.');
+        if (res.status === 200) {
+          // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
+          setSliderValuePU(res.data.tbl_target_pefs[0].push_up);
+          setsSliderSitUp(res.data.tbl_target_pefs[0].sit_up);
+          setsSliderRun(res.data.tbl_target_pefs[0].run);
+          setTestDate(new Date(res.data.tbl_target_pefs[0].end_date));
+          setUserId(res.data.id); //sets the UserId
+          // Access end_date from the first target performance record
+          // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
+          setCurrentAge(calculateAge(res.data.birthday));
+          console.log('Fetched User Data');
+        } else {
+          console.error('Failed to fetch exercise data.');
+        }
+      } catch (error) {
+        console.error('Error fetching exercise data:', error);
       }
-    } catch (error) {
-      console.error('Error fetching exercise data:', error);
-    }
-  };
+    };
 
     if (userEmail) {
       // Fetch exercise data when userEmail state changes
@@ -269,164 +262,244 @@ export default function Calculator() {
     }
   }, [userEmail]);
 
-
-
   return (
-    <div className="main">
-    <form onSubmit={handleSubmit}>
-    <FormControl >
+    <div className='main'>
+      <form onSubmit={handleSubmit}>
+        <FormControl>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Button
+                  type='submit'
+                  variant='contained'
+                  color='primary'
+                  disabled={!formChanged}
+                >
+                  Save
+                </Button>
+              </Grid>
+              <Grid item xs={2}>
+                <Item>
+                  <Typography variant='body1'>Test-Date</Typography>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label='Date'
+                      value={dayjs(testDate)}
+                      onChange={(newValue) => {
+                        setTestDate(newValue);
+                        setFormChanged(true);
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Item>
+              </Grid>
 
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2}>
-      <Grid item xs={12}>
-      <Button type="submit" variant="contained" color="primary" disabled={!formChanged}>
-        Save
-      </Button>
-      </Grid>
-      <Grid item xs={2}>
-          <Item>
-          <Typography variant="body1">Test-Date</Typography> 
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker 
-          label="Date"  
-          value={dayjs(testDate)}
-          onChange={(newValue) => {setTestDate(newValue); setFormChanged(true)}}
-          />
-          </LocalizationProvider>
-          </Item>
-      </Grid>
+              <Grid item xs={8}>
+                <Item>
+                  <Typography variant='body1'>Award</Typography>
+                  <Divider variant='middle' />
+                  <Typography variant='h2'>{calculateAwardType()}</Typography>
+                </Item>
+              </Grid>
 
-      <Grid item xs={8}>
-          <Item>
-          <Typography variant="body1">Award</Typography> 
-          <Divider variant="middle" />
-          <Typography variant="h2">{calculateAwardType()}</Typography>
-          </Item>
-      </Grid>
+              <Grid item xs={2}>
+                <Item>
+                  <Typography variant='body1'>Days Remaining</Typography>
+                  <Typography variant='h2'>
+                    {calculateDaysRemaining(todayDate, testDate)}
+                  </Typography>
+                </Item>
+              </Grid>
 
-      <Grid item xs={2} >
-          <Item >
-          <Typography variant="body1">Days Remaining</Typography> 
-          <Typography variant="h2">{calculateDaysRemaining(todayDate,testDate)}</Typography>
-          </Item>
-      </Grid>
-        
-      <Grid item xs={4}>
-        <Item>
-        <Typography variant="body1">Push-Up Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsPushUp}</Typography>
-        </Item>
-      </Grid>
-        
-      <Grid item xs={4}>
-      <Item>
-        <Typography variant="body1">Sit-Up Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsSitUp}</Typography>
-        </Item>
-      </Grid>
-        
-      <Grid item xs={4}>
-        <Item>
-        <Typography variant="body1">Running Points</Typography> 
-        <Divider variant="middle" />
-        <Typography variant="h3">{pointsRun}</Typography>
-        </Item>
-      </Grid>
-        
-      <Grid item xs={4}>
-        <Item>
-        <Stack spacing={2} alignItems="center">
-          <FormLabel id="demo-radio-buttons-group-label">Vocation</FormLabel>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="nsf"
-            name="radio-buttons-group"
-          >
-            <FormControlLabel
-              value="special"
-              control={<Radio />}
-              label="Commando/Diver/Guards"
-              disabled={true}
-            />
-            <FormControlLabel
-              value="nsf"
-              control={<Radio />}
-              label="NSF/NSMen"
-            />
-          </RadioGroup>
-        </Stack>
-        </Item>
-      </Grid>
+              <Grid item xs={4}>
+                <Item>
+                  <Typography variant='body1'>Push-Up Points</Typography>
+                  <Divider variant='middle' />
+                  <Typography variant='h3'>{pointsPushUp}</Typography>
+                </Item>
+              </Grid>
 
+              <Grid item xs={4}>
+                <Item>
+                  <Typography variant='body1'>Sit-Up Points</Typography>
+                  <Divider variant='middle' />
+                  <Typography variant='h3'>{pointsSitUp}</Typography>
+                </Item>
+              </Grid>
 
-        <Grid item xs={4}>
-          <Item>
-        <Typography gutterBottom>Age:</Typography>
-        <TextField
-          label="Age"
-          variant="outlined"
-          value={currentAge}
-          disabled={true}
-          onChange={handleInputChange}
-          error={error}
-          helperText={error ? 'Please enter a 2 digit number <60' : ''}
-          inputProps={{ maxLength: 2 }}
-        />
-        </Item>          
-        </Grid>
-        <Grid item xs={4} >
-        <Item >
-          <Stack justifyContent="center" spacing={2} direction="column" sx={{ mb: 1 }} alignItems="center">
-          <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
-      <RadioGroup
-        aria-labelledby="demo-radio-buttons-group-label"
-        defaultValue="male"
-        name="radio-buttons-group">
-        <FormControlLabel value="female" control={<Radio />} label="Female" disabled={true}/>
-        <FormControlLabel value="male" control={<Radio />} label="Male" />
-      </RadioGroup>
-      </Stack>
-      </Item>
-        </Grid>
+              <Grid item xs={4}>
+                <Item>
+                  <Typography variant='body1'>Running Points</Typography>
+                  <Divider variant='middle' />
+                  <Typography variant='h3'>{pointsRun}</Typography>
+                </Item>
+              </Grid>
 
-        <Grid item xs={12}>
-          <Item>Push-Ups Slider 
-          <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
-          <AccessibilityNewIcon style={{ margin: '0 3vw' }}/>
-        <Slider defaultValue={50} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderPushUpChange} min={1} max={60}/>
-        <Typography style={{ width: '20px', margin: '0 3vw' }}>Reps:{`\n${sliderValuePU}`}</Typography>
-          </Stack>
-          </Item>        
-        </Grid>
+              <Grid item xs={4}>
+                <Item>
+                  <Stack spacing={2} alignItems='center'>
+                    <FormLabel id='demo-radio-buttons-group-label'>
+                      Vocation
+                    </FormLabel>
+                    <RadioGroup
+                      aria-labelledby='demo-radio-buttons-group-label'
+                      defaultValue='nsf'
+                      name='radio-buttons-group'
+                    >
+                      <FormControlLabel
+                        value='special'
+                        control={<Radio />}
+                        label='Commando/Diver/Guards'
+                        disabled={true}
+                      />
+                      <FormControlLabel
+                        value='nsf'
+                        control={<Radio />}
+                        label='NSF/NSMen'
+                      />
+                    </RadioGroup>
+                  </Stack>
+                </Item>
+              </Grid>
 
-        
-        <Grid item xs={12}>
-          <Item>Sit-Ups Slider 
-          <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
-          <AirlineSeatLegroomReducedIcon style={{ margin: '0 3vw' }}/>
-        <Slider defaultValue={50} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderSitUpChange} min={1} max={60}/>
-        <Typography style={{ width: '20px', margin: '0 3vw' }}>Reps:{`\n${sliderSitUp}`}</Typography>
-          </Stack>
-          </Item>        
-        </Grid>
+              <Grid item xs={4}>
+                <Item>
+                  <Typography gutterBottom>Age:</Typography>
+                  <TextField
+                    label='Age'
+                    variant='outlined'
+                    value={currentAge}
+                    disabled={true}
+                    onChange={handleInputChange}
+                    error={error}
+                    helperText={
+                      error ? 'Please enter a 2 digit number <60' : ''
+                    }
+                    inputProps={{ maxLength: 2 }}
+                  />
+                </Item>
+              </Grid>
+              <Grid item xs={4}>
+                <Item>
+                  <Stack
+                    justifyContent='center'
+                    spacing={2}
+                    direction='column'
+                    sx={{ mb: 1 }}
+                    alignItems='center'
+                  >
+                    <FormLabel id='demo-radio-buttons-group-label'>
+                      Gender
+                    </FormLabel>
+                    <RadioGroup
+                      aria-labelledby='demo-radio-buttons-group-label'
+                      defaultValue='male'
+                      name='radio-buttons-group'
+                    >
+                      <FormControlLabel
+                        value='female'
+                        control={<Radio />}
+                        label='Female'
+                        disabled={true}
+                      />
+                      <FormControlLabel
+                        value='male'
+                        control={<Radio />}
+                        label='Male'
+                      />
+                    </RadioGroup>
+                  </Stack>
+                </Item>
+              </Grid>
 
-        <Grid item xs={12}>
-          <Item>2.4km Slider
-          <Stack justifyContent="center" spacing={2} direction="row" sx={{ mb: 1 }} alignItems="left">
-          <AccessAlarmIcon style={{ width: '20px', margin: '0 3vw' }}/>
-        <Slider defaultValue={600} aria-label="Default" valueLabelDisplay="auto"  style={{  width: "50vw"}}  onChange={handleSliderRunChange} min={500} max={1100}/>
-        <Typography style={{ width: '20px', margin: '0 3vw' }}>Time:{`\n${formatTime(sliderRun)}`}</Typography>
-          </Stack>
-          </Item>        
-        </Grid>
+              <Grid item xs={12}>
+                <Item>
+                  Push-Ups Slider
+                  <Stack
+                    justifyContent='center'
+                    spacing={2}
+                    direction='row'
+                    sx={{ mb: 1 }}
+                    alignItems='left'
+                  >
+                    <AccessibilityNewIcon style={{ margin: '0 3vw' }} />
+                    <Slider
+                      defaultValue={50}
+                      aria-label='Default'
+                      valueLabelDisplay='auto'
+                      style={{ width: '50vw' }}
+                      onChange={handleSliderPushUpChange}
+                      min={1}
+                      max={60}
+                    />
+                    <Typography style={{ width: '20px', margin: '0 3vw' }}>
+                      Reps:{`\n${sliderValuePU}`}
+                    </Typography>
+                  </Stack>
+                </Item>
+              </Grid>
 
+              <Grid item xs={12}>
+                <Item>
+                  Sit-Ups Slider
+                  <Stack
+                    justifyContent='center'
+                    spacing={2}
+                    direction='row'
+                    sx={{ mb: 1 }}
+                    alignItems='left'
+                  >
+                    <AirlineSeatLegroomReducedIcon
+                      style={{ margin: '0 3vw' }}
+                    />
+                    <Slider
+                      defaultValue={50}
+                      aria-label='Default'
+                      valueLabelDisplay='auto'
+                      style={{ width: '50vw' }}
+                      onChange={handleSliderSitUpChange}
+                      min={1}
+                      max={60}
+                    />
+                    <Typography style={{ width: '20px', margin: '0 3vw' }}>
+                      Reps:{`\n${sliderSitUp}`}
+                    </Typography>
+                  </Stack>
+                </Item>
+              </Grid>
 
-      </Grid>
-    </Box>
-    </FormControl>
-    </form>
+              <Grid item xs={12}>
+                <Item>
+                  2.4km Slider
+                  <Stack
+                    justifyContent='center'
+                    spacing={2}
+                    direction='row'
+                    sx={{ mb: 1 }}
+                    alignItems='left'
+                  >
+                    <AccessAlarmIcon
+                      style={{ width: '20px', margin: '0 3vw' }}
+                    />
+                    <Slider
+                      defaultValue={600}
+                      aria-label='Default'
+                      valueLabelDisplay='auto'
+                      style={{ width: '50vw' }}
+                      onChange={handleSliderRunChange}
+                      min={500}
+                      max={1100}
+                    />
+                    <Typography style={{ width: '20px', margin: '0 3vw' }}>
+                      Time:{`\n${formatTime(sliderRun)}`}
+                    </Typography>
+                  </Stack>
+                </Item>
+              </Grid>
+            </Grid>
+          </Box>
+        </FormControl>
+      </form>
     </div>
   );
 }
