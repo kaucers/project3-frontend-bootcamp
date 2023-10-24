@@ -23,6 +23,7 @@ const AuthCheck = () => {
         scope: 'read:current_user',
       });
       console.log(JSON.stringify(accessToken));
+      localStorage.setItem("token",accessToken)
       if (!isLoading) {
         console.log({ isAuthenticated, isLoading });
         if (isAuthenticated) {
@@ -32,7 +33,7 @@ const AuthCheck = () => {
           });
         }
         if (!flag) setFlag(true);
-        // return <Navigate replace to="/profile" />;
+        return <Navigate replace to="/profile" />;
       }
     })();
   }, [isLoading]);

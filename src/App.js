@@ -22,7 +22,7 @@ const App = () => {
   // const { isAuthenticated, logout, user } = useAuth0();
   // console.log(user);
 
-  // // pass as props to all other components (Entry, Graph) that will make API calls which requires user auth
+  // pass as props to all other components (Entry, Graph) that will make API calls which requires user auth
   // const accessToken = await {
   //   audience: process.env.REACT_APP_API_AUDIENCE,
   //   scope: user.sub, // UUID

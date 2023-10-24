@@ -8,14 +8,16 @@ import FormControl from '@mui/material/FormControl';
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import AirlineSeatLegroomReducedIcon from '@mui/icons-material/AirlineSeatLegroomReduced';
-import { Slider, Typography, Stack } from '@mui/material';
+import { Slider, Typography, Stack, Button } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
 import axios from 'axios';
 import BACKEND_URL from './constant';
+import { useAuth0 } from '@auth0/auth0-react';
 
 // Timer
 import Timer from './Timer.js';
+import { first, orderBy } from 'lodash';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -44,6 +46,9 @@ const TitleHead = styled(Paper)(({ theme }) => ({
 }));
 
 export default function Entry() {
+  const { user } = useAuth0();
+  const { email:userEmail }= user || {};
+
   const [sliderValuePU, setSliderValuePU] = useState(30);
   const [sliderSitUp, setsSliderSitUp] = useState(30);
   const [sliderRun, setsSliderRun] = useState(750);
@@ -65,7 +70,7 @@ export default function Entry() {
   const [pointsPushUp, setpointsPushUp] = useState(0);
   const [award, setAward] = useState('Work Harder');
   const [testDate, setTestDate] = useState(null);
-  const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
+  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
 
   const [userDataFetched, setUserDataFetched] = useState(false); //track user data fetched before updating via slider
 
@@ -114,7 +119,7 @@ export default function Entry() {
       // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
       const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 
-      return daysRemaining;
+      return daysRemaining||0;
     } else {
       return null;
     }
@@ -215,20 +220,25 @@ export default function Entry() {
     if (userHistory) {
       // Initialize variables to store the latest and second latest entries
       let latestEntry = null;
-      let secondLatestEntry = null;
+      let secondLatestEntry = first(orderBy(userHistory,"date","desc"));
 
       // Iterate through the userHistory array
-      userHistory.forEach((entry) => {
-        const entryDate = new Date(entry.date);
+      // if(userHistory && userHistory.length === 1){
+      //   secondLatestEntry = userHistory[0]
+      // } else {
+      //   userHistory.forEach((entry) => {
+      //     const entryDate = new Date(entry.date);
 
-        if (!latestEntry || entryDate > new Date(latestEntry.date)) {
-          // If no latest entry or the current entry is more recent than the latest,
-          // update the second latest entry to the current latest entry,
-          // and update the latest entry to the current entry.
-          secondLatestEntry = latestEntry;
-          latestEntry = entry;
-        }
-      });
+      //     if (!latestEntry || entryDate > new Date(latestEntry.date)) {
+      //       // If no latest entry or the current entry is more recent than the latest,
+      //       // update the second latest entry to the current latest entry,
+      //       // and update the latest entry to the current entry.
+      //       secondLatestEntry = latestEntry;
+      //       latestEntry = entry;
+      //     }
+      //   });
+      // }
+      
 
       // Calculate the remaining days until the testDate
       const currentDate = new Date();
@@ -238,11 +248,11 @@ export default function Entry() {
 
       // Calculate the initial exercise target increment
       const dailyIncrement = Math.ceil(
-        (testTarget - secondLatestEntry[excerciseType]) / daysUntilTest
+        (testTarget - secondLatestEntry?.[excerciseType]) / daysUntilTest
       );
 
       // Initialize the current exercise count with the latest entry
-      let currentExerciseCount = secondLatestEntry[excerciseType];
+      let currentExerciseCount = secondLatestEntry?.[excerciseType];
 
       // Loop through each day leading up to the testDate
       for (let i = 0; i < daysUntilTest; i++) {
@@ -285,41 +295,41 @@ export default function Entry() {
       return workoutPlan;
     }
   }
+// Function to make the axios request and get user perf history
+const fetchUserHistory = async () => {
+  try {
+    const res = await axios.get(`${BACKEND_URL}/history`, {
+      params: {
+        email: userEmail,
+      },
+    });
+    // console.log(response);
+    if (res.status === 200) {
+      setUserHistory(res.data);
+      // Use reduce to find the object with the latest date
+      const latestObject = res.data.reduce((latest, current) => {
+        const latestDate = new Date(latest.date);
+        const currentDate = new Date(current.date);
+        return currentDate > latestDate ? current : latest;
+      }, res.data[0]); // Initialize with the first object as the starting point
+      setSliderValuePU(latestObject?.push_up);
+      setsSliderSitUp(latestObject?.sit_up);
+      setsSliderRun(latestObject?.run);
 
+      console.log(`Historical: ${JSON.stringify(res.data)}`);
+    } else {
+      console.error('Invalid response data format');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
   // Define the useEffect hook
   useEffect(() => {
-    // Function to make the axios request and get user perf history
-    const fetchUserHistory = async () => {
-      try {
-        const res = await axios.get(`${BACKEND_URL}/history`, {
-          params: {
-            email: userEmail,
-          },
-        });
-        // console.log(response);
-        if (res.status === 200) {
-          setUserHistory(res.data);
-          // Use reduce to find the object with the latest date
-          const latestObject = res.data.reduce((latest, current) => {
-            const latestDate = new Date(latest.date);
-            const currentDate = new Date(current.date);
-            return currentDate > latestDate ? current : latest;
-          }, res.data[0]); // Initialize with the first object as the starting point
-          setSliderValuePU(latestObject.push_up);
-          setsSliderSitUp(latestObject.sit_up);
-          setsSliderRun(latestObject.run);
-
-          console.log(`Historical: ${JSON.stringify(res.data)}`);
-        } else {
-          console.error('Invalid response data format');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
     // Call the function when dependencies change
-    fetchUserHistory();
+    if(userEmail){
+      fetchUserHistory();
+    }
   }, [userEmail]); // Dependencies: trigger when these states change
 
   // Get user achievemnets:
@@ -346,7 +356,9 @@ export default function Entry() {
     };
 
     // Call the function when dependencies change
-    fetchUserAchievements();
+    if(userEmail){
+      fetchUserAchievements();
+    }
   }, [userEmail]); // Dependencies: trigger when these states change
 
   // Function to make the axios request and update the points
@@ -385,7 +397,7 @@ export default function Entry() {
       if (res.status === 200) {
         // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setUserTarget(res.data.tbl_target_pefs[0]);
-        setTestDate(new Date(res.data.tbl_target_pefs[0].end_date));
+        setTestDate(new Date(res.data.tbl_target_pefs[0]?.end_date));
         setUserId(res.data.id); //sets the UserId
         // Access end_date from the first target performance record
         // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
@@ -400,40 +412,63 @@ export default function Entry() {
   };
 
   // Define the useEffect hook
-  useEffect(() => {
-    // Call the function when dependencies change
-    fetchDataAndSetPoints();
-  }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
+  // useEffect(() => {
+  //   // Call the function when dependencies change
+  //   fetchDataAndSetPoints();
+  // }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
 
-  // Define the useEffect hook
-  useEffect(() => {
-    // Function to make the axios POST request to entry tbl_current_pefs
-    if (userHistory !== null && userTarget !== null) {
-      const updateDailyTarget = async () => {
-        try {
-          const response = await axios.post(`${BACKEND_URL}/daily`, {
-            sit_up: sliderSitUp,
-            push_up: sliderValuePU,
-            run: sliderRun,
-            date: new Date(), // Today's date (indepdent on frontend)
-            user_id: userId,
-          });
+  // // Define the useEffect hook
+  // useEffect(() => {
+  //   // Function to make the axios POST request to entry tbl_current_pefs
+  //   if (userHistory !== null && userTarget !== null && userId) {
+  //     const updateDailyTarget = async () => {
+  //       try {
+  //         const response = await axios.post(`${BACKEND_URL}/daily`, {
+  //           sit_up: sliderSitUp,
+  //           push_up: sliderValuePU,
+  //           run: sliderRun,
+  //           date: new Date(), // Today's date (indepdent on frontend)
+  //           user_id: userId,
+  //         });
 
-          // Check for a successful response (you might need to adjust this condition)
-          if (response.status === 200) {
-            console.log('Successful Entry!');
-          } else {
-            console.error('Invalid response data format');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      };
+  //         // Check for a successful response (you might need to adjust this condition)
+  //         if (response.status === 200) {
+  //           console.log('Successful Entry!');
+  //         } else {
+  //           console.error('Invalid response data format');
+  //         }
+  //       } catch (error) {
+  //         console.error('Error:', error);
+  //       }
+  //     };
 
-      // Call the function when dependencies change
-      updateDailyTarget();
+  //     // Call the function when dependencies change
+  //     updateDailyTarget();
+  //   }
+  // }, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId, userHistory,userId]); // Dependencies: trigger when these states change
+
+  const updateDailyTarget = async () => {
+    try {
+      const response = await axios.post(`${BACKEND_URL}/daily`, {
+        sit_up: sliderSitUp,
+        push_up: sliderValuePU,
+        run: sliderRun,
+        date: new Date(), // Today's date (indepdent on frontend)
+        user_id: userId,
+      });
+
+      // Check for a successful response (you might need to adjust this condition)
+      if (response.status === 200) {
+        console.log('Successful Entry!');
+      } else {
+        console.error('Invalid response data format');
+      }
+      fetchUserHistory();
+    } catch (error) {
+      console.error('Error:', error);
     }
-  }, [sliderValuePU, sliderSitUp, sliderRun, currentAge, userId, userHistory]); // Dependencies: trigger when these states change
+  };
+
 
   useEffect(() => {
     if (!userEmail) return;
@@ -449,24 +484,24 @@ export default function Entry() {
       setsTargetSitUp(
         getDailyTargets(
           userHistory,
-          userTarget.sit_up,
+          userTarget?.sit_up,
           testDate,
           3,
           'sit_up'
-        )[0].exerciseTarget
+        )[0]?.exerciseTarget||0
       );
       setTargetPu(
         getDailyTargets(
           userHistory,
-          userTarget.push_up,
+          userTarget?.push_up,
           testDate,
           3,
           'push_up'
-        )[0].exerciseTarget
+        )[0]?.exerciseTarget||0
       );
       setsTargetRun(
-        getDailyTargets(userHistory, userTarget.run, testDate, 5, 'run')[0]
-          .exerciseTarget
+        getDailyTargets(userHistory, userTarget?.run, testDate, 5, 'run')[0]
+          ?.exerciseTarget||0
       );
     }
     console.log(
@@ -478,7 +513,17 @@ export default function Entry() {
     <div className='entry'>
       <FormControl>
         <Box sx={{ flexGrow: 1 }}>
+       
           <Grid container spacing={0} direction='column'>
+            <Grid item xs={12} mb={1}>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={updateDailyTarget}
+              >
+                Save
+              </Button>
+            </Grid>
             <div className='offset'>
               <Alert
                 sx={{ width: '50vw', textAlign: 'center' }}
@@ -561,7 +606,7 @@ export default function Entry() {
                   >
                     <AccessibilityNewIcon style={{ margin: '0 3vw' }} />
                     <Slider
-                      defaultValue={targetPu}
+                      value={sliderValuePU}
                       aria-label='Default'
                       valueLabelDisplay='auto'
                       style={{ width: '50vw' }}
@@ -570,7 +615,7 @@ export default function Entry() {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsPushUp}`}
+                      Points:{`\n${pointsPushUp||0}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -616,7 +661,7 @@ export default function Entry() {
                       style={{ margin: '0 3vw' }}
                     />
                     <Slider
-                      defaultValue={targetSitUp}
+                      value={sliderSitUp||sliderValuePU}
                       aria-label='Default'
                       valueLabelDisplay='auto'
                       style={{ width: '50vw' }}
@@ -625,7 +670,7 @@ export default function Entry() {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsSitUp}`}
+                      Points:{`\n${pointsSitUp||0}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -670,7 +715,7 @@ export default function Entry() {
                       style={{ width: '20px', margin: '0 3vw' }}
                     />
                     <Slider
-                      defaultValue={targetRun}
+                      value={sliderRun}
                       aria-label='Default'
                       valueLabelDisplay='auto'
                       style={{ width: '50vw' }}
@@ -679,7 +724,7 @@ export default function Entry() {
                       max={1100}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsRun}`}
+                      Points:{`\n${pointsRun||0}`}
                     </Typography>
                   </Stack>
                 </Item>
