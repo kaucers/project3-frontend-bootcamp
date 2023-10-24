@@ -3,7 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { Button, Snackbar } from '@mui/material';
 
 const Login = () => {
-  const { loginWithRedirect } = useAuth0();
+  const { loginWithRedirect,getAccessTokenSilently } = useAuth0();
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {

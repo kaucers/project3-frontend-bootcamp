@@ -189,6 +189,7 @@ function ResponsiveAppBar2() {
           {isAuthenticated && (
             <Button
               onClick={() => {
+                localStorage.removeItem("token")
                 logout({ returnTo: window.location.origin });
               }}
               sx={{ my: 2, color: 'white', display: 'block' }}

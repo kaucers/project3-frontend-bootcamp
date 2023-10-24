@@ -17,10 +17,14 @@ import {
   ReferenceLine,
   Label, // Import Label from Recharts
 } from 'recharts';
+import { useAuth0 } from '@auth0/auth0-react';
+import { first, orderBy } from 'lodash';
 
 export default function Graph() {
+  const { user } = useAuth0();
+  const { email:userEmail }= user || {};
   // Display Points
-  const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
+  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
   // Target Sets
   const [targetPu, setTargetPu] = useState(30);
   const [targetSitUp, setsTargetSitUp] = useState(30);
@@ -111,20 +115,20 @@ export default function Graph() {
     if (userHistory) {
       // Initialize variables to store the latest and second latest entries
       let latestEntry = null;
-      let secondLatestEntry = null;
+      let secondLatestEntry = first(orderBy(userHistory,"date","desc"));
 
-      // Iterate through the userHistory array
-      userHistory.forEach((entry) => {
-        const entryDate = new Date(entry.date);
+      // // Iterate through the userHistory array
+      // userHistory.forEach((entry) => {
+      //   const entryDate = new Date(entry.date);
 
-        if (!latestEntry || entryDate > new Date(latestEntry.date)) {
-          // If no latest entry or the current entry is more recent than the latest,
-          // update the second latest entry to the current latest entry,
-          // and update the latest entry to the current entry.
-          secondLatestEntry = latestEntry;
-          latestEntry = entry;
-        }
-      });
+      //   if (!latestEntry || entryDate > new Date(latestEntry.date)) {
+      //     // If no latest entry or the current entry is more recent than the latest,
+      //     // update the second latest entry to the current latest entry,
+      //     // and update the latest entry to the current entry.
+      //     secondLatestEntry = latestEntry;
+      //     latestEntry = entry;
+      //   }
+      // });
 
       // Calculate the remaining days until the testDate
       const currentDate = new Date();
@@ -135,11 +139,11 @@ export default function Graph() {
 
       // Calculate the initial exercise target increment
       const dailyIncrement = Math.ceil(
-        (testTarget - secondLatestEntry[excerciseType]) / daysUntilTest
+        (testTarget - secondLatestEntry?.[excerciseType]) / daysUntilTest
       );
 
       // Initialize the current exercise count with the latest entry
-      let currentExerciseCount = secondLatestEntry[excerciseType];
+      let currentExerciseCount = secondLatestEntry?.[excerciseType];
 
       // Loop through each day leading up to the testDate
       for (let i = 0; i < daysUntilTest; i++) {
@@ -277,7 +281,7 @@ export default function Graph() {
             <Legend />
             <ReferenceLine
               x={convertDatesToTimestampsSingle(
-                targetData[targetData.length - 1].date
+                targetData[targetData.length - 1]?.date
               )}
               stroke='red'
               strokeDasharray='5 5'
@@ -334,7 +338,9 @@ export default function Graph() {
     };
 
     // Call the function when dependencies change
-    fetchUserHistory();
+    if(userEmail){
+      fetchUserHistory();
+    }
   }, [userEmail]); // Dependencies: trigger when these states change
 
   useEffect(() => {
@@ -352,7 +358,7 @@ export default function Graph() {
           );
           setUserTarget(res.data.tbl_target_pefs[0]);
           setTargetPu(res.data.tbl_target_pefs[0].push_up);
-          setsTargetSitUp(res.data.tbl_target_pefs[0].sit_up);
+          setsTargetSitUp(res.data.tbl_target_pefs[0]?.sit_up);
           setsTargetRun(res.data.tbl_target_pefs[0].run);
           setTestDate(new Date(res.data.tbl_target_pefs[0].end_date));
           // Access end_date from the first target performance record
@@ -378,13 +384,13 @@ export default function Graph() {
       // Both data and targetData are loaded
       // You can perform your post-processing here
       setUserTrainingSitUp(
-        getDailyTargets(userHistory, userTarget.sit_up, testDate, 3, 'sit_up')
+        getDailyTargets(userHistory, userTarget?.sit_up, testDate, 3, 'sit_up')
       );
       setUserTrainingPu(
-        getDailyTargets(userHistory, userTarget.push_up, testDate, 3, 'push_up')
+        getDailyTargets(userHistory, userTarget?.push_up, testDate, 3, 'push_up')
       );
       setUserTrainingRun(
-        getDailyTargets(userHistory, userTarget.run, testDate, 5, 'run')
+        getDailyTargets(userHistory, userTarget?.run, testDate, 5, 'run')
       );
     }
     console.log(
