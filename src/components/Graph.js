@@ -19,11 +19,16 @@ import {
 } from 'recharts';
 import { useAuth0 } from '@auth0/auth0-react';
 import { first, orderBy } from 'lodash';
+import { useAuth0 } from '@auth0/auth0-react';
+import { first, orderBy } from 'lodash';
 
 export default function Graph() {
   const { user } = useAuth0();
-  const { email:userEmail }= user || {};
+  const { email: userEmail } = user || {};
+  const { user } = useAuth0();
+  const { email: userEmail } = user || {};
   // Display Points
+  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
   // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
   // Target Sets
   const [targetPu, setTargetPu] = useState(30);
@@ -115,7 +120,7 @@ export default function Graph() {
     if (userHistory) {
       // Initialize variables to store the latest and second latest entries
       let latestEntry = null;
-      let secondLatestEntry = first(orderBy(userHistory,"date","desc"));
+      let secondLatestEntry = first(orderBy(userHistory, 'date', 'desc'));
 
       // // Iterate through the userHistory array
       // userHistory.forEach((entry) => {
@@ -206,7 +211,7 @@ export default function Graph() {
 
   // Plotting line chart generic for excercises
   function plotLine(data, targetData, xKey, yKey) {
-// Convert date strings to Date objects
+    // Convert date strings to Date objects
     // console.log(`User Training: ${JSON.stringify(targetData)}`)
     if (data !== null && targetData !== null) {
       // console.log(`Plot Data: ${JSON.stringify(data)}`)
@@ -219,7 +224,7 @@ export default function Graph() {
       // });
       data = convertDatesToTimestamps(data);
       targetData = convertDatesToTimestamps(targetData);
-      console.log(data)
+      console.log(data);
       // Sort data by timestamps (avoid entry bug)
       data.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -326,7 +331,7 @@ export default function Graph() {
             email: userEmail,
           },
         });
-          // console.log(response);
+        // console.log(response);
         if (res.status === 200) {
           setUserHistory(res.data);
           // console.log(`Historical: ${JSON.stringify(res.data)}`)
@@ -339,10 +344,10 @@ export default function Graph() {
     };
 
     // Call the function when dependencies change
-    if(userEmail&&selectedGraph){
+    if (userEmail && selectedGraph) {
       fetchUserHistory();
     }
-  }, [userEmail,selectedGraph]); // Dependencies: trigger when these states change
+  }, [userEmail, selectedGraph]); // Dependencies: trigger when these states change
 
   useEffect(() => {
     // Function to fetch exercise data based on user's email
@@ -359,6 +364,7 @@ export default function Graph() {
           );
           setUserTarget(res.data.tbl_target_pefs[0]);
           setTargetPu(res.data.tbl_target_pefs[0].push_up);
+          setsTargetSitUp(res.data.tbl_target_pefs[0]?.sit_up);
           setsTargetSitUp(res.data.tbl_target_pefs[0]?.sit_up);
           setsTargetRun(res.data.tbl_target_pefs[0].run);
           setTestDate(new Date(res.data.tbl_target_pefs[0].end_date));
@@ -388,7 +394,13 @@ export default function Graph() {
         getDailyTargets(userHistory, userTarget?.sit_up, testDate, 3, 'sit_up')
       );
       setUserTrainingPu(
-        getDailyTargets(userHistory, userTarget?.push_up, testDate, 3, 'push_up')
+        getDailyTargets(
+          userHistory,
+          userTarget?.push_up,
+          testDate,
+          3,
+          'push_up'
+        )
       );
       setUserTrainingRun(
         getDailyTargets(userHistory, userTarget?.run, testDate, 5, 'run')

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Auth0Provider } from '@auth0/auth0-react';
 import App from './App';
 import axios from 'axios';
+import axios from 'axios';
 
 const root = createRoot(document.getElementById('root'));
 

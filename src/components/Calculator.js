@@ -240,6 +240,7 @@ export default function Calculator() {
         const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
         if (res.status === 200) {
+          const tbl_target_pefs = res.data.tbl_target_pefs[0];
           // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
           setSliderValuePU(res.data.tbl_target_pefs[0]?.push_up);
           setsSliderSitUp(res.data.tbl_target_pefs[0]?.sit_up);
