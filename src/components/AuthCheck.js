@@ -10,6 +10,7 @@ const AuthCheck = () => {
     isAuthenticated,
     getAccessTokenSilently,
     loginWithRedirect,
+    logout,
     user,
   } = useAuth0();
   const [flag, setFlag] = useState(false);
@@ -36,7 +37,7 @@ const AuthCheck = () => {
         return <Navigate replace to="/profile" />;
       }
     })();
-  }, [isLoading]);
+  }, [isLoading, isAuthenticated, getAccessTokenSilently, flag, user]);
 
   if (flag) {
     return <Navigate replace to='/' />;

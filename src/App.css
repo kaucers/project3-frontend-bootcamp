@@ -72,6 +72,12 @@
   width: 25%;
 }
 
+.alignItems{
+  align-items: center;
+  display: flex; /* Create a flex container */
+  justify-content: center; /* Center items horizontally */
+}
+
 /* Media query for small screens and above (sm and up) */
 @media (min-width: 600px) {
   .data-entry {

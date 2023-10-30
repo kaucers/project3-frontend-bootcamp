@@ -217,7 +217,7 @@ export default function Entry() {
     // Create an array to store the workout plan
     const workoutPlan = [];
 
-    if (userHistory) {
+      if (userHistory) {
       // Initialize variables to store the latest and second latest entries
       let latestEntry = null;
       let secondLatestEntry = first(orderBy(userHistory,"date","desc"));
@@ -393,7 +393,6 @@ const fetchUserHistory = async () => {
   const fetchTargetData = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
-
       if (res.status === 200) {
         // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setUserTarget(res.data.tbl_target_pefs[0]);
@@ -453,7 +452,7 @@ const fetchUserHistory = async () => {
         sit_up: sliderSitUp,
         push_up: sliderValuePU,
         run: sliderRun,
-        date: new Date(), // Today's date (indepdent on frontend)
+        today_date: new Date(), // Today's date (indepdent on frontend)
         user_id: userId,
       });
 
@@ -615,7 +614,7 @@ const fetchUserHistory = async () => {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsPushUp||0}`}
+                      Points:{`\n${pointsPushUp||""}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -625,7 +624,7 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Push-Up Reps</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{sliderValuePU}</Typography>
+                  <Typography variant='h3'>{sliderValuePU||""}</Typography>
                 </Item>
               </Grid>
 
@@ -633,7 +632,7 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{targetPu}</Typography>
+                  <Typography variant='h3'>{targetPu||""}</Typography>
                 </ItemTarget>
               </Grid>
             </Grid>
@@ -661,7 +660,7 @@ const fetchUserHistory = async () => {
                       style={{ margin: '0 3vw' }}
                     />
                     <Slider
-                      value={sliderSitUp||sliderValuePU}
+                      value={sliderSitUp}
                       aria-label='Default'
                       valueLabelDisplay='auto'
                       style={{ width: '50vw' }}
@@ -670,7 +669,7 @@ const fetchUserHistory = async () => {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsSitUp||0}`}
+                      Points:{`\n${pointsSitUp||""}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -680,7 +679,7 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Sit-Up Reps</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{sliderSitUp}</Typography>
+                  <Typography variant='h3'>{sliderSitUp||""}</Typography>
                 </Item>
               </Grid>
 
@@ -688,7 +687,7 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{targetSitUp}</Typography>
+                  <Typography variant='h3'>{targetSitUp||""}</Typography>
                 </ItemTarget>
               </Grid>
             </Grid>
@@ -724,7 +723,7 @@ const fetchUserHistory = async () => {
                       max={1100}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsRun||0}`}
+                      Points:{`\n${pointsRun||""}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -734,7 +733,7 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Running Time</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h5'>{formatTime(sliderRun)}</Typography>
+                  <Typography variant='h5'>{sliderRun?formatTime(sliderRun):""}</Typography>
                 </Item>
               </Grid>
 
@@ -742,7 +741,7 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h5'>{formatTime(targetRun)}</Typography>
+                  <Typography variant='h5'>{targetRun?formatTime(targetRun):""}</Typography>
                 </ItemTarget>
               </Grid>
             </Grid>

@@ -24,7 +24,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useAuth0 } from '@auth0/auth0-react';
 
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
   ...theme.typography.body2,
@@ -36,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function Calculator() {
   const { user } = useAuth0();
-  const { email:userEmail }= user || {};
+  const { email: userEmail } = user || {};
 
   const [sliderValuePU, setSliderValuePU] = useState(50);
   const [sliderSitUp, setsSliderSitUp] = useState(50);
@@ -52,7 +51,7 @@ export default function Calculator() {
   const [todayDate, setTodayDate] = useState('');
   // Get User data
   const [userId, setUserId] = useState(null);
-  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
+  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg');
   // Detect if form is changed
   const [formChanged, setFormChanged] = useState(false);
 
@@ -160,7 +159,7 @@ export default function Calculator() {
     } else if (totalPoints >= 51) {
       return 'Pass (NSmen)';
     } else {
-      return 'No Award'; // You can customize this message as needed
+      return 'No Award';
     }
   }
 
@@ -172,7 +171,7 @@ export default function Calculator() {
       // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
       const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 
-      return daysRemaining||0;
+      return daysRemaining || 0;
     } else {
       return null;
     }
@@ -232,9 +231,7 @@ export default function Calculator() {
     fetchDataAndSetPoints();
   }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
 
-  //  // Define the useEffect hook
-  //  useEffect(() => {
-  //   // Function to make the axios request and update the target
+  //  Function to make the axios request and update the target
 
   useEffect(() => {
     // Function to fetch exercise data based on user's email
@@ -243,12 +240,11 @@ export default function Calculator() {
         const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
         if (res.status === 200) {
-          const tbl_target_pefs = res.data.tbl_target_pefs[0];
           // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-          setSliderValuePU(tbl_target_pefs?.push_up);
-          setsSliderSitUp(tbl_target_pefs?.sit_up);
-          setsSliderRun(tbl_target_pefs?.run);
-          setTestDate(new Date(tbl_target_pefs?.end_date));
+          setSliderValuePU(res.data.tbl_target_pefs[0]?.push_up);
+          setsSliderSitUp(res.data.tbl_target_pefs[0]?.sit_up);
+          setsSliderRun(res.data.tbl_target_pefs[0]?.run);
+          setTestDate(new Date(res.data.tbl_target_pefs[0]?.end_date));
           setUserId(res.data.id); //sets the UserId
           // Access end_date from the first target performance record
           // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
@@ -437,10 +433,10 @@ export default function Calculator() {
                       onChange={handleSliderPushUpChange}
                       min={1}
                       max={60}
-                      value={sliderValuePU||0}
+                      value={sliderValuePU || 0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Reps:{`\n${sliderValuePU}`}
+                      Reps:{`\n${sliderValuePU || ''}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -467,10 +463,10 @@ export default function Calculator() {
                       onChange={handleSliderSitUpChange}
                       min={1}
                       max={60}
-                      value={sliderSitUp||0}
+                      value={sliderSitUp || 0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Reps:{`\n${sliderSitUp}`}
+                      Reps:{`\n${sliderSitUp || ''}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -497,10 +493,10 @@ export default function Calculator() {
                       onChange={handleSliderRunChange}
                       min={500}
                       max={1100}
-                      value={sliderRun||0}
+                      value={sliderRun || 0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Time:{`\n${formatTime(sliderRun)}`}
+                      Time:{`\n${sliderRun ? formatTime(sliderRun) : ''}`}
                     </Typography>
                   </Stack>
                 </Item>

@@ -153,7 +153,6 @@ export default function Graph() {
         // Check if it's a recovery day (e.g., every 'recoveryDays' days)
         const isRecoveryDay = (i + 1) % recoveryDays === 0;
         // console.log(isRecoveryDay)
-
         // Calculate the exercise target for the current date
         // Once reached target
         let exerciseTargetForDate = isRecoveryDay
@@ -182,7 +181,6 @@ export default function Graph() {
         // Update the current exercise count for the next day
         currentExerciseCount = exerciseTargetForDate;
       }
-
       return workoutPlan;
     }
   }
@@ -208,17 +206,20 @@ export default function Graph() {
 
   // Plotting line chart generic for excercises
   function plotLine(data, targetData, xKey, yKey) {
-    // Convert date strings to Date objects
+// Convert date strings to Date objects
     // console.log(`User Training: ${JSON.stringify(targetData)}`)
     if (data !== null && targetData !== null) {
       // console.log(`Plot Data: ${JSON.stringify(data)}`)
-      data.forEach((entry) => {
-        entry.date = new Date(entry.date).toLocaleDateString(); // Converts 'yyyy-MM-dd' string to Date object
+      // data.forEach((entry) => {
+      //   entry.date = new Date(entry.date).toLocaleDateString(); // Converts 'yyyy-MM-dd' string to Date object
 
-        data = convertDatesToTimestamps(data);
-        targetData = convertDatesToTimestamps(targetData);
-        // console.log(targetData);
-      });
+      //   data = convertDatesToTimestamps(data);
+      //   targetData = convertDatesToTimestamps(targetData);
+      //   // console.log(targetData);
+      // });
+      data = convertDatesToTimestamps(data);
+      targetData = convertDatesToTimestamps(targetData);
+      console.log(data)
       // Sort data by timestamps (avoid entry bug)
       data.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -325,7 +326,7 @@ export default function Graph() {
             email: userEmail,
           },
         });
-        // console.log(response);
+          // console.log(response);
         if (res.status === 200) {
           setUserHistory(res.data);
           // console.log(`Historical: ${JSON.stringify(res.data)}`)
@@ -338,10 +339,10 @@ export default function Graph() {
     };
 
     // Call the function when dependencies change
-    if(userEmail){
+    if(userEmail&&selectedGraph){
       fetchUserHistory();
     }
-  }, [userEmail]); // Dependencies: trigger when these states change
+  }, [userEmail,selectedGraph]); // Dependencies: trigger when these states change
 
   useEffect(() => {
     // Function to fetch exercise data based on user's email
