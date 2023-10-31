@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo} from 'react';
+import React, { useState, useEffect, useRef, useMemo} from 'react';
 import Button from '@mui/material/Button';
 import {
     PoseLandmarker,
@@ -22,8 +23,11 @@ import { getDailyTargets } from './utils';
 function PoseProcessing() {
   const { user } = useAuth0();
   const { email:userEmail }= user || {};
+  const { user } = useAuth0();
+  const { email:userEmail }= user || {};
   const [poseLandmarker, setPoseLandmarker] = useState(null);
   const [webcamRunning, setWebcamRunning] = useState(null);
+  const [disabledVideoButton,setDisabledVideoButton] = useState(true);
   const [disabledVideoButton,setDisabledVideoButton] = useState(true);
   const [videoHeight] = useState("360px");
   const [videoWidth] = useState("480px");
@@ -140,6 +144,7 @@ function PoseProcessing() {
       const newPoseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task`,
+          modelAssetPath: `https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task`,
           delegate: "GPU",
         },
         runningMode: "VIDEO",
@@ -147,6 +152,7 @@ function PoseProcessing() {
       });
 
       setPoseLandmarker(newPoseLandmarker);
+      setDisabledVideoButton(false); //allow user to click
       setDisabledVideoButton(false); //allow user to click
 
 
@@ -183,8 +189,28 @@ function PoseProcessing() {
       }
 
  
+    //Calculation of angle between 2 points
+    const calculateAngle = (point1, point2) => {
+    return Math.atan2(Math.abs(point2.y - point1.y),Math.abs(point2.x - point1.x));
+    };
+
+    //Average coordinate
+    function averageCoordinates(obj1, obj2) {
+        if (!obj1 || !obj2) {
+          return null; // Handle cases with missing objects
+        }
+      
+        const averageX = (obj1.x + obj2.x) / 2;
+        const averageY = (obj1.y + obj2.y) / 2;
+        const averageZ = (obj1.z + obj2.z) / 2;
+      
+        return { x: averageX, y: averageY, z: averageZ };
+      }
+
+ 
     
    function predictWebcam() {
+    if (canvasRef.current && videoRef.current) { //If these parts are present
     if (canvasRef.current && videoRef.current) { //If these parts are present
       const videoTime = videoRef.current.currentTime; //Reset new videoref time
               
@@ -200,14 +226,48 @@ function PoseProcessing() {
             //   console.log(result.landmarks.length !== 0 ? result.landmarks[0][0].z : null) //printing out the human pose
               //Update the coordinates for the pose
               setPoints(result.landmarks.length !== 0 ? result.landmarks[0] : null)
+            //   console.log(result.landmarks.length !== 0 )
+            //   console.log(result.landmarks.length !== 0 ? result.landmarks[0][0].z : null) //printing out the human pose
+              //Update the coordinates for the pose
+              setPoints(result.landmarks.length !== 0 ? result.landmarks[0] : null)
 
             //Drawing of the landmarks
+            //Drawing of the landmarks
               for (const landmark of result.landmarks) {
+                //Draw dots
                 //Draw dots
                 drawingUtils.drawLandmarks(landmark, {
                     color:"#000000",
                     radius: 1
+                    color:"#000000",
+                    radius: 1
                 });
+                canvasCtx.font = "12px Arial";
+                //Draw connectors
+                drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, { color: "#1877F2" });
+                //Label the key points
+                for (const [index, element] of landmark.entries()) {
+                    // console.log(index, element.x, element.y)
+                    canvasCtx.strokeText(index, (element.x)*canvasRef.current.width, element.y*canvasRef.current.height); //plot the numbers
+                  }
+                
+            }
+
+            //Push up counting
+            if (result.landmarks.length !== 0){
+            const leftShoulder = result.landmarks[0][11];
+            const rightShoulder = result.landmarks[0][12];
+            const leftHeel = result.landmarks[0][29];
+            const rightHeel = result.landmarks[0][30];
+
+            const angleShoulderHip = calculateAngle(averageCoordinates(rightHeel, leftHeel),averageCoordinates(rightShoulder, leftShoulder)) ;
+            const angleDegrees = (angleShoulderHip * 180) / Math.PI;
+            // console.log(result.landmarks[0][11]);
+            // console.log(`Angle: ${angleDegrees.toFixed(2)}°`)        
+            setAngleDegrees(angleDegrees)
+
+        }
+            
                 canvasCtx.font = "12px Arial";
                 //Draw connectors
                 drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, { color: "#1877F2" });
@@ -239,16 +299,31 @@ function PoseProcessing() {
 
             
 
+
+            
+
           }
   
     }
     setCanvasCtx(canvasCtx)
     // console.log(`Webcam: ${webcamRunning}`)
+    setCanvasCtx(canvasCtx)
+    // console.log(`Webcam: ${webcamRunning}`)
     
+    //To have additional conditions to check if the video feed is running
+    if(videoRef.current && !videoRef.current.paused){ 
     //To have additional conditions to check if the video feed is running
     if(videoRef.current && !videoRef.current.paused){ 
         window.requestAnimationFrame(predictWebcam);
     }
+
+    else{
+        const canvasCtx = canvasRef.current.getContext("2d");
+        canvasCtx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        console.log(canvasCtx)
+        console.log(canvasRef.current.width, canvasRef.current.height);
+    }
+    
 
     else{
         const canvasCtx = canvasRef.current.getContext("2d");
@@ -280,6 +355,8 @@ function PoseProcessing() {
         console.log("Remove listener")
         if(videoRef.current){
           videoRef.current.removeEventListener("loadeddata", predictWebcam);
+        if(videoRef.current){
+          videoRef.current.removeEventListener("loadeddata", predictWebcam);
       
         // Stop video tracks associated with the stream
         if (videoRef.current.srcObject) {
@@ -292,6 +369,8 @@ function PoseProcessing() {
           videoRef.current.srcObject = null;
           setLastVideoTime(-1)
         }
+        }
+        setPushUpCounter(0);//reset
         }
         setPushUpCounter(0);//reset
       };
@@ -310,6 +389,7 @@ function PoseProcessing() {
     
     if (webcamRunning===false){
         console.log("Stopping Webcam")
+        stopWebcam()        
         stopWebcam()        
     }
 
@@ -424,14 +504,23 @@ function PoseProcessing() {
       setCountDownTrigger(false); //countdown stops
       setSession(false); //session stops counting when user stops session
       setResetTime(true); //reset timer to 1min
+      enableWebcamButtonRef.current.innerText = "START";
+      //Reset the counting parameters:
+      setPushUpCounter(0); //tops camera resets pushup
+      setCountDownTrigger(false); //countdown stops
+      setSession(false); //session stops counting when user stops session
+      setResetTime(true); //reset timer to 1min
       
     
     } else {
       setWebcamRunning(true);
       setResetTime(false);
       setSession(true); //reset session
+      setResetTime(false);
+      setSession(true); //reset session
       console.log(webcamRunning)
       console.log("Web On");
+      enableWebcamButtonRef.current.innerText = "STOP";
       enableWebcamButtonRef.current.innerText = "STOP";
 
     }    
@@ -450,6 +539,21 @@ function PoseProcessing() {
             return progress
         }
     }
+}
+
+    function PushUpProgressBar(targetCount, currentCount ) {
+        // Calculate the progress percentage
+        // console.log(currentCount, targetCount)
+        if (currentCount !== 0 ){
+            let progress = (currentCount / targetCount) * 100;
+            return progress
+        }
+        else{
+            let progress = 0;
+            return progress
+        }
+    }
+
 
 
   
@@ -513,6 +617,8 @@ function PoseProcessing() {
       </Button>
       <p>{(videoRef.current && !videoRef.current.paused) ? "To start, begin push up." : "Please wait, loading..."}</p>
       <div style={{ position: 'relative' }}>
+      <p>{(videoRef.current && !videoRef.current.paused) ? "To start, begin push up." : "Please wait, loading..."}</p>
+      <div style={{ position: 'relative' }}>
       <video
         ref={videoRef}
         id="webcam"
@@ -520,6 +626,37 @@ function PoseProcessing() {
         width={videoWidth}
         height={videoHeight}
       ></video>
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+      >
+        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+        <BorderCircularProgress variant="determinate" value={PushUpProgressBar(targetCount,pushUpCounter).toFixed(2)} size={300} />
+         <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: 'absolute',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        
+        <Typography variant="h3" component="div" color="white">{PushUpProgressBar(targetCount,pushUpCounter).toFixed(2)}%</Typography>
+        </Box>
+        </Box>
+
+        
+      </div>
+    </div>      
+      
       <div
         style={{
           position: 'absolute',
@@ -559,6 +696,15 @@ function PoseProcessing() {
         width={videoWidth}
         height={videoHeight}
       ></canvas>
+      <Typography>{points === null ? "No objects detected" :  `NOSE - X: ${points[0].x.toFixed(2)}, Y: ${points[0].y.toFixed(2)}, Z:${points[0].z.toFixed(2)}`}</Typography>
+      {/* <Typography>{`UpCycle: ${inUpCycle}`}</Typography>
+      <Typography>{`DownCycle: ${inDownCycle}`}</Typography> */}
+      <Typography>{`Audio: ${shouldPlayAudio}`}</Typography>
+      <SayUtterance
+      utterance={ utterance }
+    />
+      <Typography>{`Body Angle: ${angleDegrees.toFixed(2)}°`}</Typography>
+      <Typography>{lastUpTime.toString()}</Typography>
       <Typography>{points === null ? "No objects detected" :  `NOSE - X: ${points[0].x.toFixed(2)}, Y: ${points[0].y.toFixed(2)}, Z:${points[0].z.toFixed(2)}`}</Typography>
       {/* <Typography>{`UpCycle: ${inUpCycle}`}</Typography>
       <Typography>{`DownCycle: ${inDownCycle}`}</Typography> */}

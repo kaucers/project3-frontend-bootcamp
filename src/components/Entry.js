@@ -235,9 +235,18 @@ export default function Entry() {
       console.error('Error:', error);
     }
   };
+        console.log(`Historical: ${JSON.stringify(res.data)}`);
+      } else {
+        console.error('Invalid response data format');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
   // Define the useEffect hook
   useEffect(() => {
     // Call the function when dependencies change
+    if (userEmail) {
     if (userEmail) {
       fetchUserHistory();
     }
@@ -322,6 +331,10 @@ export default function Entry() {
   };
 
   // Define the useEffect hook
+  // useEffect(() => {
+  //   // Call the function when dependencies change
+  //   fetchDataAndSetPoints();
+  // }, [sliderValuePU, sliderSitUp, sliderRun, currentAge]); // Dependencies: trigger when these states change
   // useEffect(() => {
   //   // Call the function when dependencies change
   //   fetchDataAndSetPoints();

@@ -15,11 +15,10 @@ import AuthCheck from './components/AuthCheck';
 import PoseProcessing from './components/Vision3';
 
 import { useAuth0, getAccessTokenSilently } from '@auth0/auth0-react';
-
 // import Footer from "./components/Footer";
 
 const App = () => {
-  const { isAuthenticated, } = useAuth0();
+  const { isAuthenticated } = useAuth0();
   // console.log(user);
 
   // pass as props to all other components (Entry, Graph) that will make API calls which requires user auth
@@ -34,62 +33,37 @@ const App = () => {
         'ArmyFit360 © 2023 Dexter Chew, Karina. All rights reserved.'
       )}
       <div className='App'>
-        {/* <ResponsiveAppBar /> */}
         <ResponsiveAppBar2 />
         <BottomNavi />
 
         <div>
           <Routes>
-            <Route exact path='/' element={isAuthenticated?<Calculator />:<></>} />
-            <Route exact path='/entry' element={isAuthenticated?<Entry />:<></>} />
-            <Route exact path='/graph' element={isAuthenticated?<Graph />:<></>} />
-            <Route exact path='/vision' element={isAuthenticated?<PoseProcessing />:<></>} />
+            <Route
+              exact
+              path='/'
+              element={isAuthenticated ? <Calculator /> : <></>}
+            />
+            <Route
+              exact
+              path='/entry'
+              element={isAuthenticated ? <Entry /> : <></>}
+            />
+            <Route
+              exact
+              path='/graph'
+              element={isAuthenticated ? <Graph /> : <></>}
+            />
+            <Route
+              exact
+              path='/vision'
+              element={isAuthenticated ? <PoseProcessing /> : <></>}
+            />
             <Route path='/auth-check' element={<AuthCheck />} />
           </Routes>
         </div>
       </div>
     </BrowserRouter>
   );
-
-  // return (
-  //   <Auth0Provider
-  //     domain={process.env.REACT_APP_API_DOMAIN}
-  //     clientId={process.env.REACT_APP_API_CLIENT_ID}
-  //     authorizationParams={{
-  //       redirect_uri: window.location.origin,
-  //       audience: process.env.REACT_APP_API_AUDIENCE,
-  //     }}
-  //   >
-  //     <BrowserRouter>
-  //       {console.log(
-  //         'ArmyFit360 © 2023 Dexter Chew, Karina. All rights reserved.'
-  //       )}
-  //       <div className='App'>
-  //         <ResponsiveAppBar />
-  //         <BottomNavi />
-
-  //         <button
-  //           onClick={() => {
-  //             console.log('clicked');
-  //             loginWithRedirect();
-  //           }}
-  //         >
-  //           Log In
-  //         </button>
-
-  //         <div>
-  //           <Routes>
-  //             <Route exact path='/' element={<Calculator />} />
-  //             <Route exact path='/entry' element={<Entry />} />
-  //             <Route exact path='/graph' element={<Graph />} />
-  //             <Route path='/auth-check' element={<AuthCheck />} />
-  //             <Route path='/vision' element={<PoseProcessing />} />
-  //           </Routes>
-  //         </div>
-  //       </div>
-  //     </BrowserRouter>
-  //   </Auth0Provider>
-  // );
 };
 
 export default App;

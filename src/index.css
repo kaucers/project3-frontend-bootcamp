@@ -1,14 +1,87 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.App {
+  text-align: center;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+/* .App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+} */
+
+.main{
+  width: 80vw;
+  color: black;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto;
+}
+
+.entry{
+  width: 80vw;
+  color: black;
+  min-height: 80vh;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  margin: 10px auto;
+
+}
+
+.graphing{
+  color: black;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  margin: 10px auto;
+
+}
+
+.offset{
+  margin-bottom: 10px;
+
+}
+
+/* Footer.css */
+.footer-container {
+  /* background: linear-gradient(to top, grey, transparent); */
+  text-align: center;
+  margin: 0 auto;
+  height: 10vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.light-pastel-yellow {
+  background-color: lightyellow;
+}
+
+
+/* styles.css */
+
+/* Default width for all screens */
+.data-entry {
+  width: 25%;
+}
+
+.alignItems{
+  align-items: center;
+  display: flex; /* Create a flex container */
+  justify-content: center; /* Center items horizontally */
+}
+
+/* Media query for small screens and above (sm and up) */
+@media (min-width: 600px) {
+  .data-entry {
+    width: 50%;
+  }
 }
 
