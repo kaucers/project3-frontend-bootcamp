@@ -18,6 +18,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 // Timer
 import Timer from './Timer.js';
 import { first, orderBy } from 'lodash';
+import { getDailyTargets } from './utils';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -47,7 +48,7 @@ const TitleHead = styled(Paper)(({ theme }) => ({
 
 export default function Entry() {
   const { user } = useAuth0();
-  const { email:userEmail }= user || {};
+  const { email: userEmail } = user || {};
 
   const [sliderValuePU, setSliderValuePU] = useState(30);
   const [sliderSitUp, setsSliderSitUp] = useState(30);
@@ -70,7 +71,6 @@ export default function Entry() {
   const [pointsPushUp, setpointsPushUp] = useState(0);
   const [award, setAward] = useState('Work Harder');
   const [testDate, setTestDate] = useState(null);
-  // const [userEmail, setUserEmail] = useState('dexterchewxh@hotmail.sg'); //to change when deployed
 
   const [userDataFetched, setUserDataFetched] = useState(false); //track user data fetched before updating via slider
 
@@ -119,7 +119,7 @@ export default function Entry() {
       // Calculate the number of days remaining (1 day = 24 hours = 86400000 milliseconds)
       const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 
-      return daysRemaining||0;
+      return daysRemaining || 0;
     } else {
       return null;
     }
@@ -206,128 +206,39 @@ export default function Entry() {
     return age;
   }
 
-  // Create an array of objects with keys:
-  function getDailyTargets(
-    userHistory,
-    testTarget,
-    testDate,
-    recoveryDays = 1,
-    excerciseType
-  ) {
-    // Create an array to store the workout plan
-    const workoutPlan = [];
+  // Function to make the axios request and get user perf history
+  const fetchUserHistory = async () => {
+    try {
+      const res = await axios.get(`${BACKEND_URL}/history`, {
+        params: {
+          email: userEmail,
+        },
+      });
+      // console.log(response);
+      if (res.status === 200) {
+        setUserHistory(res.data);
+        // Use reduce to find the object with the latest date
+        const latestObject = res.data.reduce((latest, current) => {
+          const latestDate = new Date(latest.date);
+          const currentDate = new Date(current.date);
+          return currentDate > latestDate ? current : latest;
+        }, res.data[0]); // Initialize with the first object as the starting point
+        setSliderValuePU(latestObject?.push_up);
+        setsSliderSitUp(latestObject?.sit_up);
+        setsSliderRun(latestObject?.run);
 
-    if (userHistory) {
-      // Initialize variables to store the latest and second latest entries
-      let latestEntry = null;
-      let secondLatestEntry = first(orderBy(userHistory,"date","desc"));
-
-      // Iterate through the userHistory array
-      // if(userHistory && userHistory.length === 1){
-      //   secondLatestEntry = userHistory[0]
-      // } else {
-      //   userHistory.forEach((entry) => {
-      //     const entryDate = new Date(entry.date);
-
-      //     if (!latestEntry || entryDate > new Date(latestEntry.date)) {
-      //       // If no latest entry or the current entry is more recent than the latest,
-      //       // update the second latest entry to the current latest entry,
-      //       // and update the latest entry to the current entry.
-      //       secondLatestEntry = latestEntry;
-      //       latestEntry = entry;
-      //     }
-      //   });
-      // }
-      
-
-      // Calculate the remaining days until the testDate
-      const currentDate = new Date();
-      const daysUntilTest = Math.ceil(
-        (new Date(testDate) - currentDate) / (1000 * 60 * 60 * 24)
-      );
-
-      // Calculate the initial exercise target increment
-      const dailyIncrement = Math.ceil(
-        (testTarget - secondLatestEntry?.[excerciseType]) / daysUntilTest
-      );
-
-      // Initialize the current exercise count with the latest entry
-      let currentExerciseCount = secondLatestEntry?.[excerciseType];
-
-      // Loop through each day leading up to the testDate
-      for (let i = 0; i < daysUntilTest; i++) {
-        const currentDateCopy = new Date(currentDate);
-        currentDateCopy.setDate(currentDate.getDate() + i);
-
-        // Check if it's a recovery day (e.g., every 'recoveryDays' days)
-        const isRecoveryDay = (i + 1) % recoveryDays === 0;
-        // console.log(isRecoveryDay)
-
-        // Calculate the exercise target for the current date
-        // Once reached target
-        let exerciseTargetForDate = isRecoveryDay
-          ? currentExerciseCount // Maintain the same target as the previous day on recovery days
-          : currentExerciseCount + dailyIncrement * (recoveryDays / 3);
-
-        if (currentExerciseCount >= testTarget && excerciseType !== 'run') {
-          //if target not met, increase
-          exerciseTargetForDate = testTarget + dailyIncrement;
-        } else if (
-          currentExerciseCount <= testTarget &&
-          excerciseType === 'run'
-        ) {
-          exerciseTargetForDate = testTarget - dailyIncrement;
-        }
-
-        // Create an object for the workout plan for the current date
-        const workoutPlanEntry = {
-          date: currentDateCopy.toLocaleDateString(),
-          exerciseTarget: exerciseTargetForDate,
-        };
-
-        // Add the workout plan entry to the array
-        workoutPlan.push(workoutPlanEntry);
-
-        // Update the current exercise count for the next day
-        currentExerciseCount = exerciseTargetForDate;
+        console.log(`Historical: ${JSON.stringify(res.data)}`);
+      } else {
+        console.error('Invalid response data format');
       }
-
-      return workoutPlan;
+    } catch (error) {
+      console.error('Error:', error);
     }
-  }
-// Function to make the axios request and get user perf history
-const fetchUserHistory = async () => {
-  try {
-    const res = await axios.get(`${BACKEND_URL}/history`, {
-      params: {
-        email: userEmail,
-      },
-    });
-    // console.log(response);
-    if (res.status === 200) {
-      setUserHistory(res.data);
-      // Use reduce to find the object with the latest date
-      const latestObject = res.data.reduce((latest, current) => {
-        const latestDate = new Date(latest.date);
-        const currentDate = new Date(current.date);
-        return currentDate > latestDate ? current : latest;
-      }, res.data[0]); // Initialize with the first object as the starting point
-      setSliderValuePU(latestObject?.push_up);
-      setsSliderSitUp(latestObject?.sit_up);
-      setsSliderRun(latestObject?.run);
-
-      console.log(`Historical: ${JSON.stringify(res.data)}`);
-    } else {
-      console.error('Invalid response data format');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
+  };
   // Define the useEffect hook
   useEffect(() => {
     // Call the function when dependencies change
-    if(userEmail){
+    if (userEmail) {
       fetchUserHistory();
     }
   }, [userEmail]); // Dependencies: trigger when these states change
@@ -356,7 +267,7 @@ const fetchUserHistory = async () => {
     };
 
     // Call the function when dependencies change
-    if(userEmail){
+    if (userEmail) {
       fetchUserAchievements();
     }
   }, [userEmail]); // Dependencies: trigger when these states change
@@ -393,7 +304,6 @@ const fetchUserHistory = async () => {
   const fetchTargetData = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
-
       if (res.status === 200) {
         // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
         setUserTarget(res.data.tbl_target_pefs[0]);
@@ -453,7 +363,7 @@ const fetchUserHistory = async () => {
         sit_up: sliderSitUp,
         push_up: sliderValuePU,
         run: sliderRun,
-        date: new Date(), // Today's date (indepdent on frontend)
+        today_date: new Date(), // Today's date (indepdent on frontend)
         user_id: userId,
       });
 
@@ -468,7 +378,6 @@ const fetchUserHistory = async () => {
       console.error('Error:', error);
     }
   };
-
 
   useEffect(() => {
     if (!userEmail) return;
@@ -488,7 +397,7 @@ const fetchUserHistory = async () => {
           testDate,
           3,
           'sit_up'
-        )[0]?.exerciseTarget||0
+        )[0]?.exerciseTarget || 0
       );
       setTargetPu(
         getDailyTargets(
@@ -497,11 +406,11 @@ const fetchUserHistory = async () => {
           testDate,
           3,
           'push_up'
-        )[0]?.exerciseTarget||0
+        )[0]?.exerciseTarget || 0
       );
       setsTargetRun(
         getDailyTargets(userHistory, userTarget?.run, testDate, 5, 'run')[0]
-          ?.exerciseTarget||0
+          ?.exerciseTarget || 0
       );
     }
     console.log(
@@ -513,7 +422,6 @@ const fetchUserHistory = async () => {
     <div className='entry'>
       <FormControl>
         <Box sx={{ flexGrow: 1 }}>
-       
           <Grid container spacing={0} direction='column'>
             <Grid item xs={12} mb={1}>
               <Button
@@ -615,7 +523,7 @@ const fetchUserHistory = async () => {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsPushUp||0}`}
+                      Points:{`\n${pointsPushUp || ''}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -625,7 +533,7 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Push-Up Reps</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{sliderValuePU}</Typography>
+                  <Typography variant='h3'>{sliderValuePU || ''}</Typography>
                 </Item>
               </Grid>
 
@@ -633,7 +541,7 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{targetPu}</Typography>
+                  <Typography variant='h3'>{targetPu || ''}</Typography>
                 </ItemTarget>
               </Grid>
             </Grid>
@@ -661,7 +569,7 @@ const fetchUserHistory = async () => {
                       style={{ margin: '0 3vw' }}
                     />
                     <Slider
-                      value={sliderSitUp||sliderValuePU}
+                      value={sliderSitUp}
                       aria-label='Default'
                       valueLabelDisplay='auto'
                       style={{ width: '50vw' }}
@@ -670,7 +578,7 @@ const fetchUserHistory = async () => {
                       max={60}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsSitUp||0}`}
+                      Points:{`\n${pointsSitUp || ''}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -680,7 +588,7 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Sit-Up Reps</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{sliderSitUp}</Typography>
+                  <Typography variant='h3'>{sliderSitUp || ''}</Typography>
                 </Item>
               </Grid>
 
@@ -688,7 +596,7 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h3'>{targetSitUp}</Typography>
+                  <Typography variant='h3'>{targetSitUp || ''}</Typography>
                 </ItemTarget>
               </Grid>
             </Grid>
@@ -724,7 +632,7 @@ const fetchUserHistory = async () => {
                       max={1100}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Points:{`\n${pointsRun||0}`}
+                      Points:{`\n${pointsRun || ''}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -734,7 +642,9 @@ const fetchUserHistory = async () => {
                 <Item>
                   <Typography variant='body1'>Running Time</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h5'>{formatTime(sliderRun)}</Typography>
+                  <Typography variant='h5'>
+                    {sliderRun ? formatTime(sliderRun) : ''}
+                  </Typography>
                 </Item>
               </Grid>
 
@@ -742,7 +652,9 @@ const fetchUserHistory = async () => {
                 <ItemTarget>
                   <Typography variant='body1'>Today's Target</Typography>
                   <Divider variant='middle' />
-                  <Typography variant='h5'>{formatTime(targetRun)}</Typography>
+                  <Typography variant='h5'>
+                    {targetRun ? formatTime(targetRun) : ''}
+                  </Typography>
                 </ItemTarget>
               </Grid>
             </Grid>

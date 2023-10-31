@@ -41,6 +41,7 @@ root.render(
       redirect_uri: window.location.origin+"/auth-check",
       audience:process.env.REACT_APP_API_AUDIENCE
     }}
+    scope="openid profile email"
   >
     <App />
   </Auth0Provider>

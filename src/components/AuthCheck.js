@@ -10,6 +10,7 @@ const AuthCheck = () => {
     isAuthenticated,
     getAccessTokenSilently,
     loginWithRedirect,
+    logout,
     user,
   } = useAuth0();
   const [flag, setFlag] = useState(false);
@@ -22,8 +23,8 @@ const AuthCheck = () => {
         audience: process.env.AUDIENCE,
         scope: 'read:current_user',
       });
-      console.log(JSON.stringify(accessToken));
-      localStorage.setItem("token",accessToken)
+      // console.log(JSON.stringify(accessToken));
+      localStorage.setItem('token', accessToken);
       if (!isLoading) {
         console.log({ isAuthenticated, isLoading });
         if (isAuthenticated) {
@@ -33,10 +34,10 @@ const AuthCheck = () => {
           });
         }
         if (!flag) setFlag(true);
-        return <Navigate replace to="/profile" />;
+        return <Navigate replace to='/profile' />;
       }
     })();
-  }, [isLoading]);
+  }, [isLoading, isAuthenticated, getAccessTokenSilently, flag, user]);
 
   if (flag) {
     return <Navigate replace to='/' />;

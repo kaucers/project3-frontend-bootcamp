@@ -190,6 +190,7 @@ export default function Calculator() {
     return age;
   }
 
+
   useEffect(() => {
     //Get today's date
     // Create a new Date object for today's date
@@ -243,12 +244,11 @@ export default function Calculator() {
         const res = await axios.get(`${BACKEND_URL}/target?email=${userEmail}`);
 
         if (res.status === 200) {
-          const tbl_target_pefs = res.data.tbl_target_pefs[0];
           // console.log(`Data: ${JSON.stringify(res.data.tbl_target_pefs[0].end_date)}`)
-          setSliderValuePU(tbl_target_pefs?.push_up);
-          setsSliderSitUp(tbl_target_pefs?.sit_up);
-          setsSliderRun(tbl_target_pefs?.run);
-          setTestDate(new Date(tbl_target_pefs?.end_date));
+          setSliderValuePU(res.data.tbl_target_pefs[0]?.push_up);
+          setsSliderSitUp(res.data.tbl_target_pefs[0]?.sit_up);
+          setsSliderRun(res.data.tbl_target_pefs[0]?.run);
+          setTestDate(new Date(res.data.tbl_target_pefs[0]?.end_date));
           setUserId(res.data.id); //sets the UserId
           // Access end_date from the first target performance record
           // setTestDate(res.data[0].tbl_target_pefs[0].end_date);
@@ -440,7 +440,7 @@ export default function Calculator() {
                       value={sliderValuePU||0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Reps:{`\n${sliderValuePU}`}
+                      Reps:{`\n${sliderValuePU||""}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -470,7 +470,7 @@ export default function Calculator() {
                       value={sliderSitUp||0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Reps:{`\n${sliderSitUp}`}
+                      Reps:{`\n${sliderSitUp||""}`}
                     </Typography>
                   </Stack>
                 </Item>
@@ -500,7 +500,7 @@ export default function Calculator() {
                       value={sliderRun||0}
                     />
                     <Typography style={{ width: '20px', margin: '0 3vw' }}>
-                      Time:{`\n${formatTime(sliderRun)}`}
+                      Time:{`\n${sliderRun?formatTime(sliderRun):""}`}
                     </Typography>
                   </Stack>
                 </Item>

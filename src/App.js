@@ -19,7 +19,7 @@ import { useAuth0, getAccessTokenSilently } from '@auth0/auth0-react';
 // import Footer from "./components/Footer";
 
 const App = () => {
-  // const { isAuthenticated, logout, user } = useAuth0();
+  const { isAuthenticated, } = useAuth0();
   // console.log(user);
 
   // pass as props to all other components (Entry, Graph) that will make API calls which requires user auth
@@ -40,11 +40,11 @@ const App = () => {
 
         <div>
           <Routes>
-            <Route exact path='/' element={<Calculator />} />
-            <Route exact path='/entry' element={<Entry />} />
-            <Route exact path='/graph' element={<Graph />} />
+            <Route exact path='/' element={isAuthenticated?<Calculator />:<></>} />
+            <Route exact path='/entry' element={isAuthenticated?<Entry />:<></>} />
+            <Route exact path='/graph' element={isAuthenticated?<Graph />:<></>} />
+            <Route exact path='/vision' element={isAuthenticated?<PoseProcessing />:<></>} />
             <Route path='/auth-check' element={<AuthCheck />} />
-            <Route path='/vision' element={<PoseProcessing />} />
           </Routes>
         </div>
       </div>

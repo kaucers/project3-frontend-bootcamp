@@ -64,6 +64,13 @@ export default function BottomNavi() {
         label="Performance" 
         icon={<AutoGraphIcon />} 
         />
+
+<BottomNavigationAction 
+        component={Link}
+        to="/vision" 
+        label="Vision" 
+        icon={<AutoGraphIcon />} 
+        />
       </BottomNavigation>
     </Box>
     </footer>
